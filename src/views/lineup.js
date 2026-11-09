@@ -1,0 +1,714 @@
+/*!
+ * views/lineup.js —— 实战配队（tab id: lineup，第 4 页，替换原「器材说明」）
+ *
+ * 三个栏目：
+ *   1) PVP 三阵配置（主阵 / 副阵 / 奇阵）
+ *   2) 圣山队伍配置（蓝 / 紫 / 绿 / 红 四座圣山）
+ *   3) 杯赛配置（按当届杯赛维护，需经常更新）
+ *
+ * 当前为「框架页」：栏目结构 + 规则占位 + 每阵容 5 个位置槽位（待配置占位）+ 备注；
+ * 赛制规则/限制/克制关系由用户逐块补充后填入（不虚构规则）。
+ * 备注持久化：localStorage 键 bbt.lineup.v1（按栏目 id 存）。
+ */
+(function (root) {
+  'use strict';
+  var BBT = (root.BBT = root.BBT || {});
+  var views = (BBT.views = BBT.views || {});
+  var dom = BBT.dom;
+
+  var POS = ['控卫', '分卫', '小前', '大前', '中锋'];
+
+  var SECTIONS = [
+    {
+      id: 'pvp',
+      name: 'PVP 三阵配置',
+      icon: '⚔️',
+      status: '规则待补',
+      desc: 'PVP 需要三套阵容：主阵 / 副阵 / 奇阵（每阵 5 个位置）。席位分配、克制关系、出场顺序与赛制规则待逐块补充。',
+      groups: [
+        { key: 'main', label: '主阵（第一阵容）', note: 'PVP 主力阵容' },
+        { key: 'sub', label: '副阵（第二阵容）', note: 'PVP 副阵容/轮换' },
+        { key: 'odd', label: '奇阵（针对阵容）', note: 'PVP 针对/奇袭阵容' }
+      ]
+    },
+    {
+      id: 'saint',
+      name: '圣山队伍配置',
+      icon: '⛰️',
+      status: '规则待补',
+      desc: '圣山四座（蓝=白神 / 红=希雅 / 绿=野上 / 紫=出羽）各一套队伍配置；圣山加成、需求特性与可偷分方式待逐块补充。',
+      groups: [
+        { key: 'blue', label: '蓝圣山', note: '敌方 BOSS：白神 时久（蓝卡/速度·破盾用蓝卡）' },
+        { key: 'purple', label: '紫圣山', note: '敌方 BOSS：出羽 十明（无色 buff 类技能·仅大招破 2 层，无小技能）' },
+        { key: 'green', label: '绿圣山', note: '敌方 BOSS：野上 泷（绿卡/技巧·破盾用绿卡）' },
+        { key: 'red', label: '红圣山', note: '敌方 BOSS：希雅·奥黛拉（红卡/力量·破盾用红卡）' }
+      ]
+    },
+    {
+      id: 'cup',
+      name: '杯赛配置',
+      icon: '🏆',
+      status: '需经常更新',
+      desc: '杯赛赛制经常变化：不同杯赛有不同规则/限制。本栏目按「当届杯赛」维护，赛制规则与阵容需经常更新。',
+      groups: [
+        { key: 'cup-main', label: '杯赛主阵', note: '当届杯赛主力阵容' },
+        { key: 'cup-sub', label: '杯赛备用阵', note: '当届杯赛备用/针对' }
+      ]
+    }
+  ];
+
+  var activeTab = 'pvp';
+  var notesStore = Object.create(null);
+  var notesLoaded = false;
+
+  function esc(v) {
+    return dom && dom.esc ? dom.esc(v) : String(v == null ? '' : v);
+  }
+
+  function loadNotes() {
+    if (!notesLoaded) {
+      notesLoaded = true;
+      try {
+        var raw = root.localStorage && root.localStorage.getItem('bbt.lineup.v1');
+        if (raw) {
+          var parsed = JSON.parse(raw) || {};
+          for (var k in parsed) if (Object.prototype.hasOwnProperty.call(parsed, k)) notesStore[k] = parsed[k];
+        }
+      } catch (e) { /* ignore */ }
+    }
+    return notesStore;
+  }
+
+  function saveNote(id, val) {
+    loadNotes();
+    notesStore[id] = String(val || '');
+    try {
+      if (root.localStorage) root.localStorage.setItem('bbt.lineup.v1', JSON.stringify(notesStore));
+    } catch (e) { /* ignore */ }
+    BBT.__lineupNotes = notesStore;
+  }
+
+  function slotsHtml(group) {
+    return (
+      '<div class="card card--pad lineup-slot" data-lineup-slot="' + esc(group.key) + '">' +
+      '<div class="card-head"><div>' +
+      '<div class="card-title">' + esc(group.label) + '</div>' +
+      '<div class="card-sub">' + esc(group.note || '') + ' · 5 个位置（待配置）</div>' +
+      '</div><span class="badge badge--warn">槽位待补</span></div>' +
+      '<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:10px">' +
+      POS.map(function (p) {
+        return '<span class="tag tag--blue" title="待补充该位置的选人规则/条件">' + esc(p) + '：待配置</span>';
+      }).join('') +
+      '</div>' +
+      '<div class="small muted" style="margin-top:8px">占位：该阵容的选人条件、星级要求、战术/器材/笔记搭配规则待补齐。</div>' +
+      '</div>'
+    );
+  }
+
+  function pvpData() {
+    return (typeof window !== 'undefined' && window.BBTPvPData) || null;
+  }
+  var PVP_POS = ['控卫', '分卫', '小前', '大前', '中锋'];
+  function ownedName(name) {
+    var app = root.BBT && root.BBT.app;
+    if (!app || typeof app.isOwnedByName !== 'function') return true;
+    return !!app.isOwnedByName(name);
+  }
+  function ownedCountText() {
+    var app = root.BBT && root.BBT.app;
+    var ids = app && app.ownedIds;
+    return ids ? String(ids.length) : '';
+  }
+  function ownedFilterNote() {
+    var app = root.BBT && root.BBT.app;
+    if (!app || typeof app.isOwnedByName !== 'function' || !app.ownedIds) return '';
+    return '<span class="badge badge--ok">已按「我的角色」过滤：' + esc(app.ownedIds.length) + ' 人</span>';
+  }
+  function pickOwnedSlot(slot) {
+    if (!slot) return null;
+    if (ownedName(slot.name)) return { name: slot.name, replaced: false };
+    var alts = (slot.alternatives || []).filter(ownedName);
+    if (alts.length) return { name: alts[0], replaced: true, from: slot.name };
+    return { name: slot.name, replaced: false, missing: true };
+  }
+  var PVP_DIRS = [{ key: 'paint', label: '攻筐队' }, { key: 'mid', label: '中投队' }, { key: 'three', label: '三分队' }];
+  var pvpDraftCache = null;
+
+  function pvpDraftDefault() { return { activeDir: 'paint', teams: { paint: {}, mid: {}, three: {} } }; }
+  function loadPvpDraft() {
+    if (pvpDraftCache) return pvpDraftCache;
+    try {
+      var raw = root.localStorage && root.localStorage.getItem('bbt.pvp.draft.v1');
+      pvpDraftCache = raw ? JSON.parse(raw) : pvpDraftDefault();
+    } catch (e) { pvpDraftCache = pvpDraftDefault(); }
+    if (!pvpDraftCache || !pvpDraftCache.teams) pvpDraftCache = pvpDraftDefault();
+    return pvpDraftCache;
+  }
+  function savePvpDraft() {
+    try { if (root.localStorage) root.localStorage.setItem('bbt.pvp.draft.v1', JSON.stringify(pvpDraftCache)); } catch (e) { /* ignore */ }
+  }
+  function pvpRoleMap(P) {
+    var m = {};
+    ((P && P.roleCatalog) || []).forEach(function (c) { m[c.name] = c; });
+    return m;
+  }
+  function pvpCharList(P) { return (P && P.roleCatalog) || []; }
+  function dirAffinity(type, dir) {
+    if (dir === 'paint') return (type === 'paint' || type === 'rebound') ? 1 : (type === 'swing' || type === 'defense') ? 0.7 : 0.5;
+    if (dir === 'mid') return (type === 'mid' || type === 'swing') ? 1 : 0.6;
+    return (type === 'three' || type === 'swing') ? 1 : 0.6;
+  }
+  function candidateList(P, dir, pos, allOwned) {
+    var list = pvpCharList(P).map(function (c) {
+      var raw = (c.rawByPos && c.rawByPos[pos]) || 0;
+      return { name: c.name, role: c.primaryRole, stars: (c.starsByPos && c.starsByPos[pos]) || 0, score: raw + 0.25 * dirAffinity(c.type, dir) };
+    });
+    if (!allOwned) list = list.filter(function (x) { return ownedName(x.name); });
+    return list.sort(function (a, b) { return b.score - a.score; });
+  }
+  function teamMetrics(P, dir) {
+    var draft = loadPvpDraft();
+    var team = draft.teams[dir] || {};
+    var rm = pvpRoleMap(P);
+    var counts = { main: 0, organizer: 0, defender: 0, rebound: 0, ball: 0, filled: 0, affinity: 0, scorerTags: 0, staminaTeam: 0, energy: 0 };
+    PVP_POS.forEach(function (pos) {
+      var nm = team[pos]; if (!nm) return;
+      counts.filled += 1;
+      var c = rm[nm] || {};
+      if (c.primaryRole === '主攻核心') counts.main += 1;
+      if (c.primaryRole === '组织核心') counts.organizer += 1;
+      if (c.primaryRole === '防守核心') counts.defender += 1;
+      if (/篮板/.test(c.primaryRole || '')) counts.rebound += 1;
+      if (c.ballDependent) counts.ball += 1;
+      if (c.scorerTag) counts.scorerTags += 1;
+      if (c.staminaSupport === 'team') counts.staminaTeam += 1;
+      if (c.energySupport) counts.energy += 1;
+      if (dirAffinity(c.type, dir) >= 1) counts.affinity += 1;
+    });
+    var warns = [];
+    if (counts.filled === 5) {
+      if (counts.scorerTags >= 4) warns.push('⚠ 得分手过多（' + counts.scorerTags + '/5）：球权严重冲突');
+      else if (counts.scorerTags === 3) warns.push('⚠ 3 名得分手：注意球权分配');
+      if (counts.main > 2) warns.push('主攻核心 ' + counts.main + ' 人 >2 → 会抢球权');
+      if (counts.main < 1) warns.push('缺主攻核心/终结点');
+      if (counts.organizer < 1) warns.push('缺组织/中转核心');
+      if (counts.defender < 1) warns.push('⚠ 防守偏弱：缺防守核心');
+      if (counts.rebound < 1) warns.push('⚠ 篮板偏弱：缺篮板（主/副核）');
+      if (counts.staminaTeam + counts.organizer < 1) warns.push('⚠ 无耐力回复手段：建议至少 1 名组织者（可学回复耐力）；力竭后全属性下降，PVP 耐力战劣势');
+      else if (counts.staminaTeam < 1 && counts.organizer >= 1) warns.push('耐力回复：靠组织者学习（当前组织者 ' + counts.organizer + ' 人）');
+    }
+    return counts.concat ? counts : Object.assign(counts, { warns: warns });
+  }
+  function usedAcrossTeams(P, exceptDir) {
+    var draft = loadPvpDraft();
+    var used = {};
+    Object.keys(draft.teams).forEach(function (d) {
+      if (d === exceptDir) return;
+      PVP_POS.forEach(function (pos) { var nm = draft.teams[d][pos]; if (nm) used[nm] = d; });
+    });
+    return used;
+  }
+  function pvpBaselineHtml(P) {
+    if (!P || !P.userLineups || !P.userLineups.teams) return '';
+    var cards = P.userLineups.teams.map(function (t) {
+      var rows = PVP_POS.map(function (pos) {
+        var cell = (t.positions || {})[pos] || {};
+        return '<tr><td><strong>' + esc(pos) + '</strong></td><td>' + esc(cell.name || '—') + '</td><td class="small muted">' + esc(cell.roleNote || '') + '</td></tr>';
+      }).join('');
+      return '<div class="card card--pad" data-user-team="' + esc(t.label) + '" style="margin-bottom:10px">' +
+        '<div class="card-head"><div><div class="card-title">' + esc(t.label) + '（我的配置·基线）</div>' +
+        '<div class="card-sub">' + esc(t.system) + ' 体系 · 用户实机口述</div></div><span class="badge badge--ok">基线</span></div>' +
+        '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>位置</th><th>角色</th><th>职责/备注（用户口述）</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+    }).join('');
+    return '<div id="pvp-baseline" style="margin-top:10px">' + cards + '</div>';
+  }
+  function pvpBuilderHtml(P) {
+    var draft = loadPvpDraft();
+    var dir = draft.activeDir || 'paint';
+    var tabs = PVP_DIRS.map(function (d) {
+      return '<button type="button" class="btn btn--sm' + (d.key === dir ? ' btn--primary' : ' btn--ghost') + '" data-pvp-dir="' + d.key + '">' + esc(d.label) + '</button>';
+    }).join('');
+    var rm = pvpRoleMap(P);
+    var rows = PVP_POS.map(function (pos) {
+      var cur = (draft.teams[dir] || {})[pos] || '';
+      var used = usedAcrossTeams(P, dir);
+      var cands = candidateList(P, dir, pos)
+        .filter(function (x) { return !used[x.name]; })
+        .slice(0, 4)
+        .map(function (x) { return '<button type="button" class="tag" data-pvp-chip="' + esc(pos) + '|' + esc(x.name) + '" title="' + esc(x.role) + '">' + esc(x.name) + ' ' + esc(x.stars) + '★</button>'; })
+        .join(' ');
+      var options = candidateList(P, dir, pos).slice(0, 20).map(function (x) {
+        return '<option value="' + esc(x.name) + '"' + (x.name === cur ? ' selected' : '') + '>' + esc(x.name) + '（' + esc(x.stars) + '★ · ' + esc(x.role) + '）</option>';
+      }).join('');
+      return '<tr><td><strong>' + esc(pos) + '</strong></td>' +
+        '<td><select class="select" data-pvp-sel="' + esc(pos) + '" style="max-width:220px"><option value="">— 选择 —</option>' + options + '</select></td>' +
+        '<td class="small">' + (cands || '<span class="muted">—</span>') + '</td></tr>';
+    }).join('');
+    var m = teamMetrics(P, dir);
+    var warnHtml = (m.warns || []).map(function (w) { return '<span class="badge badge--warn">' + esc(w) + '</span>'; }).join(' ');
+    var uniqUsed = {};
+    Object.keys(draft.teams).forEach(function (d) { PVP_POS.forEach(function (pos) { var nm = draft.teams[d][pos]; if (nm) uniqUsed[nm] = 1; }); });
+    return '<div class="card card--pad" id="pvp-builder" style="margin-top:10px">' +
+      '<div class="card-head"><div><div class="card-title">🛠️ 自选配队（选方向 → 每位置选人/推荐）</div>' +
+      '<div class="card-sub">先确定体系方向（攻筐/中投/三分），系统按该方向给每个位置推荐候选；你可自由替换。建议每队 1~2 主攻 + 组织 + 防守 + 篮板。</div></div>' +
+      '<span class="badge badge--client">玩家自选</span></div>' +
+      '<div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap">' + tabs + ownedFilterNote() +
+      '<button type="button" class="btn btn--sm btn--ghost" data-pvp-load="' + dir + '">载入我的' + esc((PVP_DIRS.filter(function (d) { return d.key === dir; })[0] || {}).label || '') + '</button>' +
+      '<button type="button" class="btn btn--sm btn--ghost" data-pvp-clear="' + dir + '">清空</button></div>' +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:700px"><thead><tr><th>位置</th><th>选择</th><th>推荐候选（本方向）</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' +
+      '<span class="badge badge--warn">主攻核心 ' + m.main + '</span><span class="badge badge--info">组织 ' + m.organizer + '</span>' +
+      '<span class="badge badge--info">防守 ' + m.defender + '</span><span class="badge badge--neutral">篮板 ' + m.rebound + '</span>' +
+      '<span class="badge badge--warn">得分手标签 ' + m.scorerTags + '</span>' +
+      '<span class="badge ' + (m.staminaTeam > 0 ? 'badge--ok' : 'badge--neutral') + '">全队回耐 ' + m.staminaTeam + '</span>' +
+      '<span class="badge badge--info">组织者 ' + m.organizer + '</span>' +
+      '<span class="badge badge--neutral">回能量 ' + m.energy + '</span>' +
+      '<span class="badge badge--neutral">持球大招标记 ' + m.ball + '</span><span class="badge badge--neutral">本系亲和 ' + m.affinity + '</span></div>' +
+      '<div class="row" style="gap:4px;margin-top:6px;flex-wrap:wrap">' + (warnHtml || '<span class="badge badge--ok">结构 OK</span>') + '</div>' +
+      '<div class="tiny muted" style="margin-top:6px">三阵合计已用角色 ' + Object.keys(uniqUsed).length + '/15（不同阵不能重复；换阵时请避免重复）</div>' +
+      '</div>';
+  }
+  function pvpAutoHtml(P) {
+    if (!P || !P.mainPlan || !P.mainPlan.teams) return '';
+    var posOrder = PVP_POS;
+    var teamCards = (P.mainPlan.teams || []).map(function (t) {
+      var rows = posOrder.map(function (p) {
+        var c = (t.positions || {})[p] || {};
+        return '<tr><td><strong>' + esc(p) + '</strong></td><td><strong>' + esc(c.name || '—') + '</strong></td><td class="small">' + esc(c.roleLabel || '') + '</td><td class="num">' + esc(c.stars) + '★#' + esc(c.rank) + '</td></tr>';
+      }).join('');
+      var alts = [];
+      var altMap = (P.alternates || {})[t.label] || {};
+      posOrder.forEach(function (p) { var list = altMap[p] || []; if (list.length) alts.push('<div class="tiny muted" style="margin-top:2px">' + esc(p) + '替补：' + list.map(function (x) { return esc(x.name) + '(' + esc(x.stars) + '★)'; }).join('、') + '</div>'); });
+      return '<div class="card card--pad" data-pvp-team="' + esc(t.label) + '" style="margin-bottom:10px">' +
+        '<div class="card-head"><div><div class="card-title">' + esc(t.label) + '（自动推荐）</div><div class="card-sub">评分 ' + esc(t.score) + ' · 职责：主攻 ' + esc((t.roleCounts && (t.roleCounts.mainScorers != null ? t.roleCounts.mainScorers : t.roleCounts.ballScorers)) || 0) + ' / 组织 ' + esc((t.roleCounts && t.roleCounts.playmakers) || 0) + ' / 防守 ' + esc((t.roleCounts && t.roleCounts.defenders) || 0) + ' / 篮板 ' + esc((t.roleCounts && t.roleCounts.rebounders) || 0) + '</div></div><span class="badge badge--warn">自动</span></div>' +
+        '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:620px"><thead><tr><th>位置</th><th>角色</th><th>职责</th><th class="num">星级/排序</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        (alts.length ? '<details class="fold" style="margin-top:6px"><summary class="small" style="cursor:pointer">该队各位置替补</summary>' + alts.join('') + '</details>' : '') + '</div>';
+    }).join('');
+    var planRows = (P.altPlans || []).map(function (p) {
+      return '<tr><td class="small">' + esc(p.label) + '</td><td class="num">' + esc(p.totalScore) + '</td><td class="num small">' + esc((p.teamScores || []).join(' / ')) + '</td><td class="num small">' + esc(p.balance) + '</td></tr>';
+    }).join('');
+    return '<details class="card card--pad" id="pvp-auto" style="margin-top:12px"><summary class="strong" style="cursor:pointer">🤖 自动推荐（参考方案：攻筐+中投+三分各一队）</summary>' +
+      '<div class="tiny muted" style="margin-top:8px">自动方案按「位置适配 + 体系亲和 + 职责结构」生成，可作参考；实际请用上面的自选配队按你的角色池调整。</div>' +
+      teamCards +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>方案</th><th class="num">总分</th><th class="num">队伍分</th><th class="num">均衡度</th></tr></thead><tbody>' +
+      '<tr class="row-strong"><td class="small">攻筐 + 中投 + 三分（主）</td><td class="num">' + esc(P.mainPlan.totalScore) + '</td><td class="num small">' + esc((P.mainPlan.teamScores || []).join(' / ')) + '</td><td class="num small">' + esc(P.mainPlan.balance) + '</td></tr>' + planRows + '</tbody></table></div>' +
+      '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">📌</span><span>' + esc((P.twoFormationNow && P.twoFormationNow.note) || '') + '</span></div>' +
+      '<div class="tiny muted" style="margin-top:6px">' + esc(P.caveat || '') + '</div></details>';
+  }
+  function renderSaint(el) { paint(el); }
+
+  function renderPvp(el) {
+    var host = el.querySelector('#pvp-body');
+    if (!host) return;
+    var P = pvpData();
+    host.innerHTML = pvpBaselineHtml(P) + pvpBuilderHtml(P) + pvpAutoHtml(P);
+  }
+  function pvpHtml() {
+    return '<div id="pvp-body">' + pvpBaselineHtml(pvpData()) + pvpBuilderHtml(pvpData()) + pvpAutoHtml(pvpData()) + '</div>';
+  }
+
+  var SAINT_ORDER = ['blue', 'red', 'green', 'purple'];
+  var SAINT_POS = ['控卫', '分卫', '小前', '大前', '中锋'];
+  var saintDraftCache = null;
+  var saintViewKey = null;
+  function loadSaintDraft() {
+    if (saintDraftCache) return saintDraftCache;
+    try {
+      var raw = root.localStorage && root.localStorage.getItem('bbt.saint.draft.v1');
+      var parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && parsed.teams) saintDraftCache = parsed;
+      else if (parsed && parsed.team) { var k = parsed.mountain || 'purple'; var t = {}; t[k] = parsed.team; saintDraftCache = { mountain: k, teams: t }; }
+      else saintDraftCache = { mountain: 'purple', teams: {} };
+    } catch (e) { saintDraftCache = { mountain: 'purple', teams: {} }; }
+    if (!saintDraftCache.teams) saintDraftCache.teams = {};
+    return saintDraftCache;
+  }
+  function saveSaintDraft() { try { if (root.localStorage) root.localStorage.setItem('bbt.saint.draft.v1', JSON.stringify(saintDraftCache)); } catch (e) {} }
+  function saintTeamOf(key) { var d = loadSaintDraft(); return (d.teams && d.teams[key]) || {}; }
+  function setSaintTeam(key, team) { var d = loadSaintDraft(); d.mountain = key; if (!d.teams) d.teams = {}; d.teams[key] = team || {}; saveSaintDraft(); }
+  function saintData() {
+    var sd = (typeof window !== 'undefined' && window.BBScenarios) || null;
+    return sd ? { plans: sd.saintTeamPlans || {}, meta: sd.saintCharMeta || {}, cand: sd.saintCandidates || {}, mount: sd.saintMountains || {}, scoring: sd.saintScoring || null } : null;
+  }
+  function saintSchedule() {
+    var S = (typeof window !== 'undefined' && window.BBTSaintSchedule) || null;
+    return S ? S.compute(Date.now()) : null;
+  }
+  function saintView() {
+    if (saintViewKey && SAINT_ORDER.indexOf(saintViewKey) >= 0) return saintViewKey;
+    var s = saintSchedule();
+    return s ? s.key : 'red';
+  }
+  function setSaintView(k) { if (SAINT_ORDER.indexOf(k) >= 0) saintViewKey = k; }
+  function saintMountainMeta(key) {
+    var S = saintData(); if (!S) return {};
+    var m = S.mount[key] || {};
+    var attr = (m.breakAttr || '').indexOf('速') >= 0 ? '速' : (m.breakAttr || '').indexOf('力') >= 0 ? '力' : (m.breakAttr || '').indexOf('技') >= 0 ? '技' : '无属性';
+    return { key: key, name: m.name || key, attr: attr, boss: m.boss || '', recognition: ((S.cand[key] || {}).recognition) || [] };
+  }
+  function saintChecks(key) {
+    var S = saintData(); var mm = saintMountainMeta(key);
+    var team = saintTeamOf(key);
+    var counts = { breakers: 0, stealers: 0, energy: 0, playmaker: 0, dual: 0, filled: 0 };
+    SAINT_POS.forEach(function (pos) {
+      var nm = team[pos]; if (!nm) return;
+      counts.filled += 1;
+      var meta = (S.meta || {})[nm] || {};
+      var isBreak = (meta.ultAttrs || []).indexOf(mm.attr) >= 0;
+      var isSteal = (meta.actions || []).some(function (a) { return mm.recognition.indexOf(a) >= 0; });
+      if (isBreak) counts.breakers += 1;
+      if (isSteal) counts.stealers += 1;
+      if (isBreak && isSteal) counts.dual += 1;
+      if (meta.energySupport) counts.energy += 1;
+      if (meta.primaryRole === '组织核心') counts.playmaker += 1;
+    });
+    var warns = [];
+    if (counts.filled === 5) {
+      var needBreak = key === 'purple' ? 3 : 1;
+      if (counts.breakers < needBreak) warns.push('⚠ 破盾手不足：' + counts.breakers + ' 人（建议 ≥' + needBreak + '）');
+      if (counts.stealers < 1) warns.push('⚠ 缺偷分手（认可动作角色）');
+      if (key === 'purple' && counts.energy + counts.playmaker < 1) warns.push('⚠ 无回能/组织资源：大招循环会很慢');
+      if (key === 'purple' && counts.dual > 0) warns.push('注意：紫圣山破盾与偷分通常应是不同人（双职仅皆川式例外）');
+    }
+    return { counts: counts, warns: warns };
+  }
+  function saintScheduleHtml() {
+    var s = saintSchedule(); if (!s) return '';
+    return '<div class="notice notice--info" id="saint-schedule" style="margin-bottom:10px"><span class="notice-ico">⏰</span><span>' +
+      '<strong>当前圣山：' + esc(s.label) + '</strong>（第 ' + esc(s.day) + ' 天 / ' + esc(s.days) + ' 天）' +
+      ' · 距轮换 <b>' + esc(s.remainingText) + '</b>' +
+      ' · 下一个：<b>' + esc(s.nextLabel) + '</b>（' + esc(s.nextAtText) + '）' +
+      '<br><span class="tiny muted">轮换顺序：' + esc(s.orderText) + '；每 3 天 05:00（Asia/Shanghai）轮换 · 按系统时间自动计算</span>' +
+      '</span><button type="button" class="btn btn--sm btn--ghost" data-saint-sched-refresh="1" style="margin-left:8px">刷新时间</button></div>';
+  }
+  function saintViewTabsHtml() {
+    var s = saintSchedule();
+    var cur = s ? s.key : 'red';
+    var view = saintView();
+    var S = saintData(); if (!S) return '';
+    var btns = SAINT_ORDER.map(function (k) {
+      var p = S.plans[k] || {};
+      var isCur = k === cur;
+      var active = k === view;
+      return '<button type="button" class="btn btn--sm' + (active ? ' btn--primary' : ' btn--ghost') + '" data-saint-view="' + k + '">' +
+        esc(p.name || k) + (isCur ? ' · 当前' : '') + '</button>';
+    }).join('');
+    var back = view !== cur ? '<button type="button" class="btn btn--sm btn--ghost" data-saint-view="' + cur + '">回到当前</button>' : '';
+    return '<div class="row" style="gap:6px;margin-bottom:10px;flex-wrap:wrap" id="saint-view-tabs">' +
+      '<span class="small muted" style="align-self:center">查看圣山：</span>' + btns + back + ownedFilterNote() + '</div>';
+  }
+  function saintRecognitionHtml(key) {
+    var S = saintData(); if (!S || !S.scoring) return '';
+    var s = S.scoring; var g = s.global || {}; var rec = g.recognition || {};
+    var mr = (s.mountains || {})[key] || {};
+    var m = (S.mount || {})[key] || {};
+    var badges = (mr.recognition || []).map(function (r) {
+      return '<span class="badge ' + (r.points === 900 ? 'badge--warn' : 'badge--neutral') + '">' + esc(r.action) + (r.points ? ' +' + esc(r.points) : '') + '</span>';
+    }).join(' ');
+    return '<div class="notice notice--info" style="margin-bottom:10px"><span class="notice-ico">🏆</span><span>' +
+      '<strong>' + esc(m.name || key) + ' · 认可度（偷分）：</strong>' + (badges || '待补') +
+      '<div class="tiny muted" style="margin-top:4px">非常认可 +' + esc(rec.high || 900) + ' / 一般认可 +' + esc(rec.normal || 300) +
+      '；胜利 +20%（看运气，优先偷分）；每山 3 种认可方式。' + (mr.note ? ' ' + esc(mr.note) : '') + '</div>' +
+      (mr.optimalExample ? '<div class="small" style="margin-top:4px">最优解参考：' + esc(mr.optimalExample) + '</div>' : '') +
+      '</span></div>';
+  }
+  function saintPlanCardHtml(key) {
+    var S = saintData(); if (!S || !S.plans || !S.plans[key]) return '';
+    var p = S.plans[key];
+    var eqs = (p.equipment || []).map(function (e) {
+      return '<span class="tag" title="' + esc(e.reason || '') + '">' + esc(e.equip) + '→' + esc(e.skill) + '<span class="tiny muted">（' + esc(e.kind || '') + '）</span></span>';
+    }).join(' ');
+    var rows = (p.slots || []).map(function (s) {
+      var pick = pickOwnedSlot(s);
+      var alts = (s.alternatives || []).slice(0, 4).map(function (n) {
+        var own = ownedName(n);
+        return '<span class="tag' + (own ? '' : ' is-muted') + '">' + esc(n) + (own ? '' : '（未拥有）') + '</span>';
+      }).join(' ');
+      var nameHtml = '<strong>' + esc(pick.name) + '</strong>';
+      if (pick.missing) nameHtml = '<strong class="muted">' + esc(pick.name) + '（未拥有）</strong>';
+      var rep = pick.replaced ? '<div class="tiny" style="color:#c92a2a">推荐 ' + esc(pick.from) + ' 未拥有 → 已替换为下位替代</div>' : '';
+      return '<tr><td class="small">' + esc(s.role) + '</td><td>' + nameHtml + rep + (s.reason ? '<div class="tiny muted">' + esc(s.reason) + '</div>' : '') + (s.note ? '<div class="tiny muted">' + esc(s.note) + '</div>' : '') + '</td><td class="small">' + (alts || '<span class="muted">—</span>') + '</td></tr>';
+    }).join('');
+    return '<div class="card card--pad" data-saint-plan="' + key + '" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">' + esc(p.name) + ' · 推荐方案（5 人）</div>' +
+      '<div class="card-sub">BOSS ' + esc(p.boss) + ' · 破盾 ' + esc(p.breakAttr) + '</div></div>' +
+      '<span class="badge badge--client">下位替代</span></div>' +
+      (p.strategyNote ? '<div class="tiny muted" style="margin:6px 0">' + esc(p.strategyNote) + '</div>' : '') +
+      '<div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:600px"><thead><tr><th>职责</th><th>推荐</th><th>下位替代</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<div style="margin-top:8px"><strong class="small">推荐器材（不用凑 5 件，按你的器材挑）：</strong><div style="margin-top:4px">' + (eqs || '<span class="muted small">—</span>') + '</div></div>' +
+      '</div>';
+  }
+  function saintBuilderHtml(key) {
+    var S = saintData(); if (!S || !S.meta) return '';
+    var names = Object.keys(S.meta).filter(ownedName).sort();
+    if (!names.length) names = Object.keys(S.meta).sort();
+    var plan = S.plans[key] || {};
+    var team = saintTeamOf(key);
+    var recNames = (plan.slots || []).map(function (s) { var pk = pickOwnedSlot(s); return pk ? pk.name : ''; });
+    var slots = SAINT_POS.map(function (pos, i) {
+      var cur = team[pos] || '';
+      var opts = names.map(function (n) { return '<option value="' + esc(n) + '"' + (n === cur ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('');
+      var rec = recNames[i] ? '<span class="tiny muted">推荐：' + esc(recNames[i]) + '</span>' : '';
+      return '<tr><td><strong>' + esc(pos) + '</strong></td>' +
+        '<td><select class="select" data-saint-sel="' + esc(pos) + '" style="max-width:200px"><option value="">— 选择 —</option>' + opts + '</select></td>' +
+        '<td class="small">' + rec + '</td></tr>';
+    }).join('');
+    var chk = saintChecks(key);
+    var mm = saintMountainMeta(key);
+    var warnHtml = (chk.warns || []).map(function (w) { return '<span class="badge badge--warn">' + esc(w) + '</span>'; }).join(' ');
+    return '<div class="card card--pad" id="saint-builder" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🛠️ 自选配队（' + esc(mm.name) + '）</div>' +
+      '<div class="card-sub">当前圣山：' + esc(mm.name) + '（破盾 ' + esc(mm.attr) + '）· 检查破盾手/偷分手/回能/组织；缺角色可参考上方下位替代。</div></div>' +
+      '<span class="badge badge--client">玩家自选</span></div>' +
+      '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' +
+      '<button type="button" class="btn btn--sm btn--ghost" data-saint-load="' + key + '">载入推荐</button>' +
+      '<button type="button" class="btn btn--sm btn--ghost" data-saint-clear="' + key + '">清空</button></div>' +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:600px"><thead><tr><th>位置</th><th>选择</th><th>参考</th></tr></thead><tbody>' + slots + '</tbody></table></div>' +
+      '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' +
+      '<span class="badge badge--warn">破盾手 ' + chk.counts.breakers + '</span><span class="badge badge--info">偷分手 ' + chk.counts.stealers + '</span>' +
+      '<span class="badge badge--info">回能 ' + chk.counts.energy + '</span><span class="badge badge--neutral">组织 ' + chk.counts.playmaker + '</span>' +
+      '<span class="badge badge--neutral">双职 ' + chk.counts.dual + '</span></div>' +
+      '<div class="row" style="gap:4px;margin-top:6px;flex-wrap:wrap">' + (warnHtml || '<span class="badge badge--ok">结构 OK</span>') + '</div></div>';
+  }
+  function saintCandidatesHtml(key) {
+    var S = saintData(); if (!S || !S.cand || !S.cand[key]) return '';
+    var v = S.cand[key];
+    var brk = (v.breakers || []).filter(function (b) { return ownedName(b.name); }).slice(0, 8).map(function (b) {
+      var tr = (v.breakerTraits || {})[b.name] || {};
+      var tags = (tr.energy ? '[回能]' : '') + (tr.playmaker ? '[组织]' : '') + (tr.stamina === 'team' ? '[回耐]' : '');
+      return '<span class="tag" title="' + esc((b.skills || []).join('/')) + '">' + esc(b.name) + (b.dualActions && b.dualActions.length ? ' ★' : '') + (tags ? '<span class="tiny muted">' + tags + '</span>' : '') + '</span>';
+    }).join(' ');
+    var stl = (v.stealers || []).filter(function (s) { return ownedName(s.name); }).slice(0, 6).map(function (s) {
+      return '<span class="tag">' + esc(s.name) + '<span class="tiny muted">（' + esc((s.actions || []).join('/')) + '）</span></span>';
+    }).join(' ');
+    var eqs = (v.equipmentFits || []).slice(0, 8).map(function (e) {
+      return '<span class="tag" title="' + esc(e.reason || '') + '">' + esc(e.equip) + '→' + esc(e.skill) + '<span class="tiny muted">（' + esc(e.kind || '') + '）</span></span>';
+    }).join(' ');
+    return '<div class="card card--pad" data-saint-cand="' + key + '" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">' + esc(v.name) + ' · 候选清单</div>' +
+      '<div class="card-sub">BOSS ' + esc(v.boss || '') + ' · 破盾 ' + esc(v.cardColor || '') + '/' + esc(v.attr || '') + '</div></div>' +
+      '<span class="badge badge--neutral">破盾手/偷分手/器材</span></div>' +
+      '<div style="margin-top:8px"><strong class="small">破盾手：</strong><div style="margin-top:4px">' + (brk || '<span class="muted small">暂无已拥有候选</span>') + '</div></div>' +
+      '<div style="margin-top:8px"><strong class="small">偷分手：</strong><div style="margin-top:4px">' + (stl || '<span class="muted small">暂无已拥有候选</span>') + '</div></div>' +
+      '<div style="margin-top:8px"><strong class="small">适配器材：</strong><div style="margin-top:4px">' + (eqs || '<span class="muted small">—</span>') + '</div></div></div>';
+  }
+  function saintCommonRulesHtml() {
+    var sd = (typeof window !== 'undefined' && window.BBScenarios) || null;
+    var r = sd && sd.saintCommonRules;
+    if (!r) return '';
+    var crystal = r.crystal || {};
+    var br = r.break_rules || {};
+    return '<details class="fold"><summary class="small" style="cursor:pointer">圣山统一规则（点击展开）</summary>' +
+      '<div class="notice notice--info" style="margin-top:6px"><span class="notice-ico">⛰️</span><span>' +
+      '敌方 BOSS 自带 <b>' + esc(crystal.stacks || 6) + ' 层圣山结晶</b>（每层能量回复 <b>' + esc(crystal.perStackEnergyRegen || '+20%') + '</b>）；' +
+      esc(br.ultimate || '对应卡色大招破 2 层') + '；' + esc(br.small_skill || '小技能破 1 层（须成功）') + '；后期留结晶 → BOSS 全队属性大幅提升。核心是刷认可度（偷分），不是打赢。' +
+      '<br><span class="tiny muted">' + esc(br.colorNote || '') + '</span></span></div></details>';
+  }
+
+  function sectionHtml(sec) {
+    var notes = loadNotes();
+    if (sec.id === 'pvp') {
+      return '<div class="card card--pad" id="lineup-section-pvp" style="margin-bottom:12px">' +
+        '<div class="card-head"><div><div class="card-title">⚔️ PVP 三阵配置（自选 + 基线 + 自动参考）</div>' +
+        '<div class="card-sub">PVP 无场地加成，唯一硬约束=角色池深度：3 阵×5 人=15 名不同角色（每阵不能重复）。</div></div>' +
+        '<span class="badge badge--client">规则已录入</span></div>' +
+        pvpHtml() +
+        '<div class="team-sub-label" style="margin-top:12px">规则 / 限制 / 出场顺序（待补充）</div>' +
+        '<textarea class="input" id="lineup-note-pvp" data-lineup-note="pvp" rows="3" maxlength="4000" placeholder="补充 PVP 规则、限制、出场顺序（自动保存到本地）…">' + esc(notes['pvp'] || '') + '</textarea>' +
+        '</div>';
+    }
+    if (sec.id === 'saint') {
+      var key = saintView();
+      return '<div class="card card--pad" id="lineup-section-saint" style="margin-bottom:12px">' +
+        saintScheduleHtml() +
+        '<div class="card-head"><div><div class="card-title">⛰️ 圣山队伍配置</div>' +
+        '<div class="card-sub">只看当前圣山（按系统时间轮换）；也可手动切换查看其他圣山。</div></div>' +
+        '<span class="badge badge--client">当前：' + esc(saintMountainMeta(key).name) + '</span></div>' +
+        saintViewTabsHtml() +
+        saintRecognitionHtml(key) +
+        saintPlanCardHtml(key) +
+        saintBuilderHtml(key) +
+        saintCandidatesHtml(key) +
+        saintCommonRulesHtml() +
+        '<div class="team-sub-label" style="margin-top:12px">规则 / 限制（待补充）</div>' +
+        '<textarea class="input" id="lineup-note-saint" data-lineup-note="saint" rows="3" maxlength="4000" placeholder="补充圣山规则/限制（自动保存到本地）…">' + esc(notes['saint'] || '') + '</textarea>' +
+        '</div>';
+    }
+    return (
+      '<div class="card card--pad" id="lineup-section-' + esc(sec.id) + '" style="margin-bottom:12px">' +
+      '<div class="card-head"><div>' +
+      '<div class="card-title">' + esc(sec.icon) + ' ' + esc(sec.name) + '</div>' +
+      '<div class="card-sub">' + esc(sec.desc) + '</div>' +
+      '</div><span class="badge badge--warn">' + esc(sec.status) + '</span></div>' +
+      '<div class="grid grid--2" style="gap:12px;margin-top:10px">' +
+      sec.groups.map(slotsHtml).join('') +
+      '</div>' +
+      '<div class="team-sub-label" style="margin-top:12px">规则 / 限制 / 出场顺序（待补充）</div>' +
+      '<textarea class="input" id="lineup-note-' + esc(sec.id) + '" data-lineup-note="' + esc(sec.id) + '" rows="4" maxlength="4000" placeholder="补充该赛制的规则、限制、配队思路（自动保存到本地）…">' +
+      esc(notes[sec.id] || '') +
+      '</textarea>' +
+      '<div class="small muted" style="margin-top:6px">说明：当前仅为框架页；具体赛制规则由用户逐块补充后填入，不虚构。</div>' +
+      '</div>'
+    );
+  }
+
+  function tabsHtml() {
+    return SECTIONS.map(function (s) {
+      return '<button type="button" class="btn btn--sm' + (s.id === activeTab ? ' btn--primary' : ' btn--ghost') +
+        '" data-lineup-tab="' + esc(s.id) + '">' + esc(s.icon) + ' ' + esc(s.name) + '</button>';
+    }).join('');
+  }
+
+  function bodyHtml() {
+    var sec = SECTIONS.filter(function (s) { return s.id === activeTab; })[0] || SECTIONS[0];
+    return sectionHtml(sec);
+  }
+
+  function syncNotes(root) {
+    var notes = loadNotes();
+    var nodes = root.querySelectorAll('[data-lineup-note]');
+    for (var i = 0; i < nodes.length; i++) {
+      var id = nodes[i].getAttribute('data-lineup-note');
+      if (typeof notes[id] === 'string') nodes[i].value = notes[id];
+    }
+  }
+
+  function paint(el) {
+    var host = el.querySelector('#lineup-body');
+    if (host) { host.innerHTML = bodyHtml(); syncNotes(host); }
+  }
+
+  function styleBonusHtml() {
+    var sd = (typeof window !== 'undefined' && window.BBTStyleData) || null;
+    if (!sd || !sd.rules) return '';
+    var colorRows = (sd.cardColors || []).map(function (c) {
+      var rule = (sd.rules || []).filter(function (r) { return r.style === c.style; })[0] || {};
+      var th = (rule.thresholds || []).map(function (t) { return t.count + '人→' + t.percent + '%'; }).join(' / ');
+      return '<tr><td><span class="tag" style="border-left:4px solid ' + esc(c.colorHex) + '">' + esc(c.cardColor) + '</span></td>' +
+        '<td><strong>' + esc(c.style) + '</strong></td>' +
+        '<td class="num">' + esc(th) + '</td>' +
+        '<td class="small">' + esc(rule.target || '—') + '</td></tr>';
+    }).join('');
+    var dist = sd.distribution || {};
+    var distChips = (sd.cardColors || []).map(function (c) {
+      return '<span class="tag" style="border-left:4px solid ' + esc(c.colorHex) + '">' + esc(c.cardColor) + '·' + esc(c.style) + ' ' + esc(dist[c.style] || 0) + '人</span>';
+    }).join('');
+    var byStyle = sd.byStyle || {};
+    var details = (sd.cardColors || []).map(function (c) {
+      var names = byStyle[c.style] || [];
+      if (!names.length) return '';
+      return '<details class="fold" style="margin:2px 0"><summary class="small" style="cursor:pointer">' + esc(c.cardColor) + ' · ' + esc(c.style) + '（' + names.length + ' 人）</summary>' +
+        '<div class="small muted" style="margin:4px 0 0 18px">' + names.map(esc).join('、') + '</div></details>';
+    }).join('');
+    return '<div class="card card--pad" id="lineup-style-bonus" style="margin-bottom:12px">' +
+      '<div class="card-head"><div>' +
+      '<div class="card-title"><span class="ico">🎨</span>通用配队加成 · 风格（卡牌颜色）</div>' +
+      '<div class="card-sub">' + esc(sd.note || '风格 = 角色卡牌颜色（蓝/红/绿/紫/金），与战场定位标签（得分手/防守者/篮板手/组织者/多面手）不是同一维度。') + '</div>' +
+      '</div><span class="badge badge--client">客户端配置 + 用户口径</span></div>' +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>卡色</th><th>风格</th><th class="num">触发人数 → 加成</th><th>效果对象</th></tr></thead><tbody>' + colorRows + '</tbody></table></div>' +
+      '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">🧩</span><span><strong>可叠加：</strong>' + esc(sd.stacking || '不同类效果可同时触发；同类取最高档。') + '</span></div>' +
+      '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' + distChips + '</div>' +
+      '<div class="small muted" style="margin-top:6px">说明：紫卡（球商）角色的技能可能是力卡/技卡/速卡任意一种，所以它的加成对象是【看破时】打卡；金卡（全能）目前只有 3 名多面手角色（希雅/白神/野上）。</div>' +
+      '<div style="margin-top:6px">' + details + '</div>' +
+      '<div class="tiny muted" style="margin-top:6px">来源：' + esc(sd.source || '') + '；配置证据：' + esc((sd.configEvidence && sd.configEvidence.file) || '') + '</div>' +
+      '</div>';
+  }
+
+  views.lineup = {
+    id: 'lineup',
+    nav: '实战配队',
+    icon: '⚔️',
+    title: '实战配队',
+    subtitle:
+      '战斗配队框架：PVP 三阵配置（主/副/奇阵）、圣山队伍配置（蓝/紫/绿/红）、杯赛配置（按当届杯赛维护）。赛制规则逐块补充。',
+    dataNote:
+      '本页来源：框架页（栏目结构 + 规则占位 + 每阵容 5 位置槽位）；赛制规则/限制/克制/出场顺序待用户逐块说明后填充（不虚构规则）。备注自动保存 localStorage（bbt.lineup.v1）。',
+    mount: function (el) {
+      saintViewKey = null; // 每次进入页面默认看当前圣山
+      el.innerHTML =
+        styleBonusHtml() +
+        '<div class="card card--pad" style="margin-bottom:12px">' +
+        '<div class="card-head"><div>' +
+        '<div class="card-title"><span class="ico">⚔️</span>实战配队 · 三套战斗配置</div>' +
+        '<div class="card-sub">PVP 三阵配置 / 圣山队伍配置 / 杯赛配置 —— 不同赛制规则不同，当前为可扩展框架。</div>' +
+        '</div><span class="badge badge--warn">框架待补充规则</span></div>' +
+        '<div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap">' + tabsHtml() + '</div>' +
+        '</div>' +
+        '<div id="lineup-body">' + bodyHtml() + '</div>';
+
+      syncNotes(el);
+
+      // ===== 圣山时间窗口刷新 =====
+      dom.delegate(el, '[data-saint-sched-refresh]', 'click', function () {
+        var host = el.querySelector('#saint-schedule');
+        if (!host) return;
+        var wrap = host.parentNode;
+        var tmp = wrap.querySelector('#saint-schedule');
+        if (tmp) tmp.outerHTML = saintScheduleHtml();
+      });
+
+      // ===== 圣山自选配队交互 =====
+      dom.delegate(el, '[data-saint-view]', 'click', function (ev, t) {
+        setSaintView(t.getAttribute('data-saint-view')); paint(el);
+      });
+      dom.delegate(el, '[data-saint-sel]', 'change', function (ev, t) {
+        var key = saintView(); var team = saintTeamOf(key);
+        team[t.getAttribute('data-saint-sel')] = t.value || ''; setSaintTeam(key, team); renderSaint(el);
+      });
+      dom.delegate(el, '[data-saint-load]', 'click', function (ev, t) {
+        var key = t.getAttribute('data-saint-load');
+        var S = saintData(); var plan = S && S.plans && S.plans[key]; if (!plan) return;
+        setSaintView(key); var team = {};
+        (plan.slots || []).forEach(function (s, i) { var pk = pickOwnedSlot(s); if (SAINT_POS[i] && pk) team[SAINT_POS[i]] = pk.name; });
+        setSaintTeam(key, team); renderSaint(el);
+      });
+      dom.delegate(el, '[data-saint-clear]', 'click', function () {
+        setSaintTeam(saintView(), {}); renderSaint(el);
+      });
+
+      // ===== PVP 自选配队交互 =====
+      dom.delegate(el, '[data-pvp-dir]', 'click', function (ev, t) {
+        var d = loadPvpDraft(); d.activeDir = t.getAttribute('data-pvp-dir'); savePvpDraft(); renderPvp(el);
+      });
+      dom.delegate(el, '[data-pvp-chip]', 'click', function (ev, t) {
+        var parts = String(t.getAttribute('data-pvp-chip') || '').split('|');
+        if (parts.length !== 2) return;
+        var d = loadPvpDraft(); if (!d.teams[d.activeDir]) d.teams[d.activeDir] = {};
+        d.teams[d.activeDir][parts[0]] = parts[1]; savePvpDraft(); renderPvp(el);
+      });
+      dom.delegate(el, '[data-pvp-load]', 'click', function (ev, t) {
+        var dir = t.getAttribute('data-pvp-load');
+        var P = pvpData(); if (!P || !P.userLineups) return;
+        var lab = { paint: '攻框一阵', mid: '中投二阵', three: '三分三阵' }[dir];
+        var u = (P.userLineups.teams || []).filter(function (x) { return x.label === lab; })[0];
+        if (!u) return;
+        var d = loadPvpDraft(); d.activeDir = dir; d.teams[dir] = {};
+        PVP_POS.forEach(function (pos) { var c = (u.positions || {})[pos]; if (c) d.teams[dir][pos] = c.name; });
+        savePvpDraft(); renderPvp(el);
+      });
+      dom.delegate(el, '[data-pvp-clear]', 'click', function (ev, t) {
+        var dir = t.getAttribute('data-pvp-clear');
+        var d = loadPvpDraft(); d.teams[dir] = {}; savePvpDraft(); renderPvp(el);
+      });
+      dom.delegate(el, 'select[data-pvp-sel]', 'change', function (ev, t) {
+        var pos = t.getAttribute('data-pvp-sel');
+        var d = loadPvpDraft(); if (!d.teams[d.activeDir]) d.teams[d.activeDir] = {};
+        d.teams[d.activeDir][pos] = t.value || ''; savePvpDraft(); renderPvp(el);
+      });
+
+      dom.delegate(el, '[data-lineup-tab]', 'click', function (ev, t) {
+        var id = t.getAttribute('data-lineup-tab');
+        if (!id || id === activeTab) return;
+        activeTab = id;
+        var row = el.querySelector('.row');
+        // 重绘 tabs + body
+        var tabsHost = el.querySelector('[data-lineup-tab]');
+        if (tabsHost && tabsHost.parentNode) tabsHost.parentNode.innerHTML = tabsHtml();
+        paint(el);
+      });
+      dom.delegate(el, '[data-lineup-note]', 'input', function (ev, t) {
+        saveNote(t.getAttribute('data-lineup-note'), t.value);
+      });
+    }
+  };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
