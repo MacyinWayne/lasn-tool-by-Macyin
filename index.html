@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="《篮球少女：飞跃巅峰》数值逆向工程与配装工具包：训练收益计算、表情爆发优化、公式参数卡、角色图鉴。零依赖离线可用。">
+  <meta name="color-scheme" content="light dark">
+  <title>篮球少女：飞跃巅峰 · 数值工具包</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23f97316'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2'%3E%3Ccircle cx='16' cy='16' r='10'/%3E%3Cpath d='M6.5 12.5c5 1.2 9 4.2 11.7 8.8M25.5 12.5c-5 1.2-9 4.2-11.7 8.8M16 6v20M6 16h20'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="stylesheet" href="src/styles/theme.css">
+  <link rel="stylesheet" href="src/styles/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true" id="brand-mark"></div>
+          <div class="brand-text">
+            <div class="brand-title">篮球少女：飞跃巅峰 <span class="brand-accent">· 数值工具包</span></div>
+            <div class="brand-sub">社区实测 · 公式可调 · 离线可用 · 数字有出处</div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span class="data-pill" id="data-version" title="数据版本">数据 v…</span>
+          <button class="icon-btn" type="button" id="owned-chip" title="修改我拥有的角色">👥 我的角色</button>
+          <span class="data-pill" id="data-pill" title="角色数据状态"><span class="dot"></span><span>加载中…</span></span>
+          <button class="icon-btn" type="button" id="theme-toggle" aria-label="切换主题" title="切换主题"></button>
+        </div>
+      </div>
+      <nav class="tabbar" id="tabbar" role="tablist" aria-label="工具模块导航"></nav>
+    </header>
+
+    <main class="app-main" id="view-root" aria-live="polite"></main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div>
+          <strong>篮球少女：飞跃巅峰 · 数值工具包</strong>
+          <div>非官方社区研究项目。公式来自社区实测与公开攻略的逆向推导，不代表官方数值；「推断 / 待验证」项请勿作为硬结论。</div>
+          <div>当前公测版本 1.18（2026-11-05 数据快照） · 工具版本 <span id="app-version">v1.0</span> · 双击 index.html 即可离线使用</div>
+        </div>
+        <div class="footer-links">
+          <a href="README.md">工具说明</a>
+          <span class="muted">角色数据源（内置）</span>
+          <span class="muted">知识库（内置数据）</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <noscript>
+    <div style="max-width:720px;margin:40px auto;padding:20px;border:1px solid #f1c27d;background:#fff7e6;border-radius:12px;font-family:sans-serif">
+      这个工具包需要 JavaScript 才能运行：请在浏览器设置中允许本地文件运行脚本，或换用 Edge / Chrome 打开。
+    </div>
+  </noscript>
+
+  <!-- 计算核心（纯函数，浏览器与 Node 双端可用） -->
+  <script src="src/core/params.js"></script>
+  <script src="src/core/ownership.js"></script>
+  <script src="src/core/game-data.js"></script>
+  <script src="src/core/store.js"></script>
+  <script src="src/core/attribute-layers.js"></script>
+  <script src="src/core/format.js"></script>
+  <script src="src/core/training.js"></script>
+  <script src="src/core/expression.js"></script>
+  <script src="src/core/mechanics.js"></script>
+  <script src="src/core/growth.js"></script>
+  <script src="src/core/roster.js"></script>
+  <script src="src/core/battle.js"></script>
+  <script src="src/core/economy.js"></script>
+  <script src="src/core/validator.js"></script>
+  <script src="src/core/notes.js"></script>
+  <script src="src/core/gacha-stream.js"></script>
+
+  <!-- UI 基础组件 -->
+  <script src="src/ui/dom.js"></script>
+  <script src="src/ui/charts.js"></script>
+  <script src="src/ui/note-plan.js"></script>
+
+  <!-- 数据（构建期生成；缺 characters.js 时自动降级到示例名单） -->
+  <script src="src/data/sample-characters.js"></script>
+  <script src="src/data/characters.js"></script>
+  <script src="src/data/roster.js"></script>
+  <script src="src/data/model.js"></script>
+  <script src="src/data/notes-harmony.js"></script>
+  <script src="src/data/notes.js"></script>
+  <script src="src/data/scenarios.js"></script>
+  <script src="src/data/saint-schedule.js"></script>
+  <script src="src/data/equipment.js"></script>
+  <script src="src/data/equip-skills.js"></script>
+  <script src="src/data/note-entries.js"></script>
+  <script src="src/data/official.js"></script>
+  <script src="src/data/battle.js"></script>
+  <script src="src/data/wish.js"></script>
+  <script src="src/data/styles.js"></script>
+  <script src="src/data/pvp.js"></script>
+
+  <!-- 视图 -->
+  <script src="src/views/placeholder.js"></script>
+  <script src="src/views/official-widgets.js"></script>
+  <script src="src/views/gacha-stream.js"></script>
+  <script src="src/views/overview.js"></script>
+  <script src="src/views/teams.js"></script>
+  <script src="src/views/battle.js"></script>
+  <script src="src/views/equipment.js"></script>
+  <script src="src/views/lineup.js"></script>
+  <script src="src/views/training.js"></script>
+  <script src="src/views/expression.js"></script>
+  <script src="src/views/formulas.js"></script>
+  <script src="src/views/codex.js"></script>
+  <script src="src/views/notes.js"></script>
+  <script src="src/views/simulator.js"></script>
+  <script src="src/views/growth.js"></script>
+  <script src="src/views/resources.js"></script>
+  <script src="src/views/validator.js"></script>
+
+  <!-- 应用入口 -->
+  <script src="src/app.js"></script>
+</body>
+</html>
