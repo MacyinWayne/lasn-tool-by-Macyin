@@ -1,4 +1,4 @@
-# 依赖 / 系统文件
+﻿# 依赖 / 系统文件
 node_modules/
 .DS_Store
 Thumbs.db
@@ -7,7 +7,7 @@ desktop.ini
 *.log
 
 # 大文件 / 游戏客户端解包资源（不要上传！）
-data/
+/data/
 raw/
 *.bin
 *.archive

@@ -1,7 +1,7 @@
 /*!
  * data/characters.js —— 自动生成，请勿手改。
  * 生成脚本：tool/scripts/build-data.mjs
- * 生成时间：2026-11-05 22:17
+ * 生成时间：2026-11-12 13:02
  * 数据模式：T1 结构化数据
  * 数据来源：data/structured/characters.json
  *
@@ -12,14 +12,14 @@
   'use strict';
   var data = {
   "schema": 1,
-  "generatedAt": "2026-11-05 22:17",
+  "generatedAt": "2026-11-12 13:02",
   "count": 38,
   "mode": "structured",
   "source": "data/structured/characters.json",
   "sourceLabel": "T1 结构化数据",
   "derivedSource": "data/structured/derived_roster.json",
   "skillDutySource": "data/structured/skill_duty_readable.json",
-  "inputBytes": 96176,
+  "inputBytes": 85988,
   "sourceMeta": {
     "generatedAt": "2026-11-05 07:23",
     "source": "data/raw/gamekee（GameKee wiki content/detail 原始响应，未重新抓取）",
@@ -32,7 +32,8 @@
       "style 为空表示 wiki 资料未给出定位风格（如 野上泷 / 白神时久 / 希雅·奥黛拉）；title_source=editor_note 表示 wiki 上该定位称号为编辑注释而非官方称号。",
       "38 名球员六项潜力合计恒为 1000，属性合计 960~1297，二者为不同配额体系。",
       "六维合计按稀有度分档（R/SR/SSR），且存在 4 组完全重复的六维向量（见 findings）——这是「潜力向量位置原型模板 × 稀有度曲线」的结构性结果：同模板+同稀有度即同六维，组内差异只在技能/流派天赋；仍属 wiki 参考值，需客户端数据最终校验。详细派生见 data/structured/derived_roster.json。",
-      "3 名球员（森田 莉莉 / 美伽 未来 / 五十岚 诗音）固定技能描述在 wiki 原文为空，保留 null 未臆造。"
+      "3 名球员（森田 莉莉 / 美伽 未来 / 五十岚 诗音）固定技能描述在 wiki 原文为空，保留 null 未臆造。",
+      "2026-11-12 res20/1.0.21 复核：百目鬼 剑 身高体重改客户端角色卡 178/63（原 wiki 181/75 有误），新增臂展 189；A层满级六维 227/250/168/183/189/176 已由客户端「角色等级表」level120+40 复核（38/38 wiki 角色一致），来源标注改为客户端配置实测。"
     ],
     "skillLevelStats": {
       "只有1级": 0,
@@ -57,6 +58,7 @@
       "school": "北空之丘女高",
       "heightCm": 170,
       "weightKg": 60,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -131,6 +133,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "小前锋是游戏中重要的得分者，擅长多样化的得分手段",
       "source": "https://www.gamekee.com/lqsn/725342.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:05",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -332,6 +338,7 @@
       "school": "北空之丘女高",
       "heightCm": 175,
       "weightKg": 67,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -406,6 +413,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "大前锋往往体格强壮，能在篮下发起强硬攻击且冲抢篮板",
       "source": "https://www.gamekee.com/lqsn/725343.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -616,6 +627,7 @@
       "school": "北空之丘女高",
       "heightCm": 163,
       "weightKg": 55,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -690,6 +702,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "得分后卫通常拥有很强的投射能力，在外线为队伍贡献得分",
       "source": "https://www.gamekee.com/lqsn/725344.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -907,6 +923,7 @@
       "school": "北空之丘女高",
       "heightCm": 164,
       "weightKg": 52,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手"
@@ -981,6 +998,10 @@
       "styleDesc": "强烈的进攻欲望，承担了队伍中的大多的得分任务。",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725345.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -1198,6 +1219,7 @@
       "school": "北空之丘女高",
       "heightCm": 180,
       "weightKg": 75,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手"
@@ -1272,6 +1294,10 @@
       "styleDesc": "强烈的进攻欲望，承担了队伍中的大多的得分任务。",
       "positionDesc": "中锋一般由队中最高的球员担任，负责篮下的防守和篮板保护",
       "source": "https://www.gamekee.com/lqsn/725346.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -1502,6 +1528,7 @@
       "school": "伊澄综合学园",
       "heightCm": 184,
       "weightKg": 81,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -1582,6 +1609,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "中锋一般由队中最高的球员担任，负责篮下的防守和篮板保护",
       "source": "https://www.gamekee.com/lqsn/725347.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -1814,6 +1845,7 @@
       "school": "北空之丘女高",
       "heightCm": 165,
       "weightKg": 58,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手"
@@ -1894,6 +1926,10 @@
       "styleDesc": "强烈的进攻欲望，承担了队伍中的大多的得分任务。",
       "positionDesc": "得分后卫通常拥有很强的投射能力，在外线为队伍贡献得分",
       "source": "https://www.gamekee.com/lqsn/725348.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -2130,6 +2166,7 @@
       "school": "伊澄综合学园",
       "heightCm": 163,
       "weightKg": 61,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -2210,6 +2247,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725349.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -2435,6 +2476,7 @@
       "school": "伊澄综合学园",
       "heightCm": 167,
       "weightKg": 60,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -2509,6 +2551,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "大前锋往往体格强壮，能在篮下发起强硬攻击且冲抢篮板",
       "source": "https://www.gamekee.com/lqsn/725350.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -2736,6 +2782,7 @@
       "school": "伊澄综合学园",
       "heightCm": 165,
       "weightKg": 54,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -2810,6 +2857,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "得分后卫通常拥有很强的投射能力，在外线为队伍贡献得分",
       "source": "https://www.gamekee.com/lqsn/725351.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -3049,6 +3100,7 @@
       "school": "伊澄综合学园",
       "heightCm": 174,
       "weightKg": 69,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手"
@@ -3123,6 +3175,10 @@
       "styleDesc": "强烈的进攻欲望，承担了队伍中的大多的得分任务。",
       "positionDesc": "小前锋是游戏中重要的得分者，擅长多样化的得分手段",
       "source": "https://www.gamekee.com/lqsn/725352.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:08",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -3355,8 +3411,9 @@
       "role": "小前",
       "style": "组织者",
       "school": "樱海高校",
-      "heightCm": 181,
-      "weightKg": 75,
+      "heightCm": 178,
+      "weightKg": 63,
+      "spanCm": 189,
       "tags": [],
       "roles": [
         "组织者"
@@ -3437,8 +3494,17 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "小前锋是游戏中重要的得分者，擅长多样化的得分手段",
       "source": "https://www.gamekee.com/lqsn/725354.html",
+      "bodySource": "客户端 res20 initactor.sw 角色卡 rec=7862（身高178/体重63/臂展189）；wiki 181/75 有误，以客户端为准",
+      "attributesSource": "客户端 res20 initactor.sw「角色等级表」initactor_id=1013 level=120 property_tbl（187/210/128/143/149/136）+ 展示加成 40/项 = A层满级 227/250/168/183/189/176；其中 101-103（投射/弹跳/防守）有「突破属性表」property_tbl_up=40 旁证，104-106（体能/运控/意识）的 +40 为均匀规则推断（38/38 wiki 角色复核一致）。",
+      "attributeSourceType": "客户端配置实测（level120 property_tbl）+ 展示加成规则（101-103 突破表旁证；104-106 均匀 +40 推断）",
+      "releaseInfo": {
+        "version": "1.0.21 / resVersion 20（2026-11-12）",
+        "status": "released",
+        "detail": "feature_open「百目鬼卡池正式开启」时间戳 1794448800 = 2026-11-12 10:00；角色卡 show_time=1794430800；百目鬼 UP 池/活动挑战赛同步开启",
+        "evidenceFile": "data/structured/_client_res20/baimugui_raw.json"
+      },
       "sourceUpdatedAt": "2026-10-25 00:08",
-      "confidence": "单源",
+      "confidence": "客户端配置复核（res20 level120+40；六维/潜力）",
       "dataStatus": "ready",
       "note": "六项潜力数值依次列出，暂不标注尚未确认的属性名称：",
       "portrait": "assets/portraits/725354.png",
@@ -3648,6 +3714,7 @@
       "school": "樱海高校",
       "heightCm": 167,
       "weightKg": 56,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -3722,6 +3789,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "得分后卫通常拥有很强的投射能力，在外线为队伍贡献得分",
       "source": "https://www.gamekee.com/lqsn/725355.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -3955,6 +4026,7 @@
       "school": "樱海高校",
       "heightCm": 175,
       "weightKg": 74,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -4029,6 +4101,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "中锋一般由队中最高的球员担任，负责篮下的防守和篮板保护",
       "source": "https://www.gamekee.com/lqsn/725356.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -4233,6 +4309,7 @@
       "school": "私立苍骑学园",
       "heightCm": 181,
       "weightKg": 73,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -4307,6 +4384,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "大前锋往往体格强壮，能在篮下发起强硬攻击且冲抢篮板",
       "source": "https://www.gamekee.com/lqsn/725357.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -4508,6 +4589,7 @@
       "school": "明日叶学园",
       "heightCm": 170,
       "weightKg": 62,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -4582,6 +4664,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "小前锋是游戏中重要的得分者，擅长多样化的得分手段",
       "source": "https://www.gamekee.com/lqsn/725358.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -4807,6 +4893,7 @@
       "school": "明日叶学园",
       "heightCm": 170,
       "weightKg": 58,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -4881,6 +4968,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "得分后卫通常拥有很强的投射能力，在外线为队伍贡献得分",
       "source": "https://www.gamekee.com/lqsn/725359.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -5075,6 +5166,7 @@
       "school": "明日叶学园",
       "heightCm": 163,
       "weightKg": 52,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -5149,6 +5241,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725360.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -5378,6 +5474,7 @@
       "school": "明日叶学园",
       "heightCm": 176,
       "weightKg": 65,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -5452,6 +5549,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "大前锋往往体格强壮，能在篮下发起强硬攻击且冲抢篮板",
       "source": "https://www.gamekee.com/lqsn/725361.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -5689,6 +5790,7 @@
       "school": "明日叶学园",
       "heightCm": 180,
       "weightKg": 78,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "篮板手"
@@ -5763,6 +5865,10 @@
       "styleDesc": "敏锐的篮板嗅觉，在争夺篮板球上总能抢占先机。",
       "positionDesc": "中锋一般由队中最高的球员担任，负责篮下的防守和篮板保护",
       "source": "https://www.gamekee.com/lqsn/725362.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -5999,6 +6105,7 @@
       "school": "樱海高校",
       "heightCm": 172,
       "weightKg": 63,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手"
@@ -6073,6 +6180,10 @@
       "styleDesc": "强烈的进攻欲望，承担了队伍中的大多的得分任务。",
       "positionDesc": "大前锋往往体格强壮，能在篮下发起强硬攻击且冲抢篮板",
       "source": "https://www.gamekee.com/lqsn/725363.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:09",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -6304,6 +6415,7 @@
       "school": "圣菲洛斯公学",
       "heightCm": 176,
       "weightKg": 59,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "篮板手"
@@ -6378,6 +6490,10 @@
       "styleDesc": "敏锐的篮板嗅觉，在争夺篮板球上总能抢占先机。",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725364.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -6580,6 +6696,7 @@
       "school": "圣菲洛斯公学",
       "heightCm": 181,
       "weightKg": 80,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -6654,6 +6771,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "中锋一般由队中最高的球员担任，负责篮下的防守和篮板保护",
       "source": "https://www.gamekee.com/lqsn/725366.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -6888,6 +7009,7 @@
       "school": "圣菲洛斯公学",
       "heightCm": 178,
       "weightKg": 73,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "篮板手"
@@ -6962,6 +7084,10 @@
       "styleDesc": "敏锐的篮板嗅觉，在争夺篮板球上总能抢占先机。",
       "positionDesc": "大前锋往往体格强壮，能在篮下发起强硬攻击且冲抢篮板",
       "source": "https://www.gamekee.com/lqsn/725367.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -7166,6 +7292,7 @@
       "school": "北空之丘女高",
       "heightCm": 158,
       "weightKg": 44,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手"
@@ -7240,6 +7367,10 @@
       "styleDesc": "强烈的进攻欲望，承担了队伍中的大多的得分任务。",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725368.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -7432,6 +7563,7 @@
       "school": "北空之丘女高",
       "heightCm": 165,
       "weightKg": 57,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -7506,6 +7638,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "得分后卫通常拥有很强的投射能力，在外线为队伍贡献得分",
       "source": "https://www.gamekee.com/lqsn/725369.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -7697,6 +7833,7 @@
       "school": "北空之丘女高",
       "heightCm": 181,
       "weightKg": 77,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -7771,6 +7908,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "中锋一般由队中最高的球员担任，负责篮下的防守和篮板保护",
       "source": "https://www.gamekee.com/lqsn/725370.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -7964,6 +8105,7 @@
       "school": "圣菲洛斯公学",
       "heightCm": 173,
       "weightKg": 74,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "篮板手"
@@ -8038,6 +8180,10 @@
       "styleDesc": "敏锐的篮板嗅觉，在争夺篮板球上总能抢占先机。",
       "positionDesc": "小前锋是游戏中重要的得分者，擅长多样化的得分手段",
       "source": "https://www.gamekee.com/lqsn/725371.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -8273,6 +8419,7 @@
       "school": "圣菲洛斯公学",
       "heightCm": 166,
       "weightKg": 57,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手"
@@ -8347,6 +8494,10 @@
       "styleDesc": "强烈的进攻欲望，承担了队伍中的大多的得分任务。",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725372.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -8580,6 +8731,7 @@
       "school": "私立苍骑学园",
       "heightCm": 168,
       "weightKg": 51,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -8654,6 +8806,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725373.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -8872,6 +9028,7 @@
       "school": "私立苍骑学园",
       "heightCm": 173,
       "weightKg": 58,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -8946,6 +9103,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "得分后卫通常拥有很强的投射能力，在外线为队伍贡献得分",
       "source": "https://www.gamekee.com/lqsn/725374.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:10",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -9180,6 +9341,7 @@
       "school": "圣山联盟",
       "heightCm": 179,
       "weightKg": 60,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手",
@@ -9261,6 +9423,10 @@
       "styleDesc": "",
       "positionDesc": "大前锋往往体格强壮，能在篮下发起强硬攻击且冲抢篮板",
       "source": "https://www.gamekee.com/lqsn/725375.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:11",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -9467,6 +9633,7 @@
       "school": "夜明女高",
       "heightCm": 171,
       "weightKg": 59,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "篮板手"
@@ -9541,6 +9708,10 @@
       "styleDesc": "敏锐的篮板嗅觉，在争夺篮板球上总能抢占先机。",
       "positionDesc": "小前锋是游戏中重要的得分者，擅长多样化的得分手段",
       "source": "https://www.gamekee.com/lqsn/725376.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:11",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -9766,6 +9937,7 @@
       "school": "青岚高等学校",
       "heightCm": 168,
       "weightKg": 58,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "防守者"
@@ -9840,6 +10012,10 @@
       "styleDesc": "优越的防守意识，在防守上有独特的优势。",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725377.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:11",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -10067,6 +10243,7 @@
       "school": "青岚高等学校",
       "heightCm": 171,
       "weightKg": 61,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "篮板手"
@@ -10141,6 +10318,10 @@
       "styleDesc": "敏锐的篮板嗅觉，在争夺篮板球上总能抢占先机。",
       "positionDesc": "小前锋是游戏中重要的得分者，擅长多样化的得分手段",
       "source": "https://www.gamekee.com/lqsn/725378.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:11",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -10334,6 +10515,7 @@
       "school": "虹梦高等学院",
       "heightCm": 179,
       "weightKg": 70,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者"
@@ -10408,6 +10590,10 @@
       "styleDesc": "球场指挥官，能让队伍完美执行战术，提升得分效率。",
       "positionDesc": "中锋一般由队中最高的球员担任，负责篮下的防守和篮板保护",
       "source": "https://www.gamekee.com/lqsn/725379.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:11",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -10634,6 +10820,7 @@
       "school": "圣山联盟",
       "heightCm": 162,
       "weightKg": 52,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "组织者",
@@ -10715,6 +10902,10 @@
       "styleDesc": "",
       "positionDesc": "控球后卫是全队进攻的组织者，通过对球的控制影响全场",
       "source": "https://www.gamekee.com/lqsn/725380.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:11",
       "confidence": "单源",
       "dataStatus": "ready",
@@ -10914,6 +11105,7 @@
       "school": "圣山联盟",
       "heightCm": 178,
       "weightKg": 71,
+      "spanCm": null,
       "tags": [],
       "roles": [
         "得分手",
@@ -10995,6 +11187,10 @@
       "styleDesc": "",
       "positionDesc": "中锋一般由队中最高的球员担任，负责篮下的防守和篮板保护",
       "source": "https://www.gamekee.com/lqsn/725381.html",
+      "bodySource": null,
+      "attributesSource": null,
+      "attributeSourceType": null,
+      "releaseInfo": null,
       "sourceUpdatedAt": "2026-10-25 00:11",
       "confidence": "单源",
       "dataStatus": "ready",

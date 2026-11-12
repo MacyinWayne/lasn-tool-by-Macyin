@@ -375,7 +375,7 @@
         plan.ji = jiReach(plan.base);
         plan.meta = planScore(plan);
         plan.reason = '指定位置=' + targetPosition + '：笔记1=' + c1.character.name +
-          '（基础位置=' + targetPosition + '，关系分 ' + c1.score + '，提供目标适性词条）；笔记2=' +
+          '（基础位置=' + targetPosition + '，关系分 ' + c1.score + '，提供目标适性词条；注意适性词条从拥有适性随机抽，非必出该位置）；笔记2=' +
           (c2 ? c2.character.name + '（关系分 ' + c2.score + '，拉高总分）' : '（无可选第二本）') +
           ' → 总分 ' + plan.meta.total + '（' + plan.meta.tier + '，传承学习 ' + plan.meta.learn + ' 次）。';
         return plan;
@@ -924,7 +924,7 @@
           dogfoodPlanHtml(dogfoodPlan()) +
           (compare ? '<div class="pair-compare">📊 ' + esc(compare.text) + '</div>' : '') +
           dogfoodCompareHtml(pure, position) +
-          '<div class="small muted" style="margin-top:8px">位置字段来自 data/structured/characters.json（wiki）；未实装/位置未知角色已排除。适性词条按角色基础适性，其他位置待验证。</div>' +
+          '<div class="small muted" style="margin-top:8px">位置字段来自 data/structured/characters.json（wiki）；未实装/位置未知角色已排除。适性词条从角色拥有的位置适性中随机抽取（2026-11-10 实测），不是固定取基础/最高适性。</div>' +
           '</div>'
         );
       }
@@ -971,7 +971,7 @@
         if (basePos) {
           out.push({ name: basePos + '适性', type: '特殊（适性）', reason: '角色自己的基础适性（来源=角色基础位置；其他位置样本不足/待验证）' });
         } else {
-          out.push({ name: '适性词条（基础位置待确认）', type: '特殊（适性）', reason: '适性词条来源=角色自己的基础适性；其他位置样本不足/待验证' });
+          out.push({ name: '适性词条（拥有适性随机抽）', type: '特殊（适性）', reason: '适性词条从角色拥有的全部位置适性中随机抽（2026-11-10 实测）；想定向出某位置，别让角色获得额外位置' });
         }
         return out;
       }
@@ -1939,15 +1939,30 @@
           cand.push({ id: cid, character: byId[cid], meta: mc, score: Number(rel.score) || 0, position: mc.position || positionOf(cid) });
         });
         var posCands = cand.filter(function (x) { return x.position === pos; }).sort(function (a, b) { return b.score - a.score; });
-        var a = posCands[0] || null;
-        var rest = cand.filter(function (x) { return !a || x.id !== a.id; }).sort(function (a, b) { return b.score - a.score; });
-        var b = rest[0] || null;
+        var recA = posCands[0] || null;
+        var manualA = null;
+        if (ui.noteSuitCarrierA) {
+          manualA = cand.filter(function (x) { return x.id === String(ui.noteSuitCarrierA); })[0] || null;
+        }
+        var a = manualA || recA;
+        var rest = cand.filter(function (x) { return !a || x.id !== a.id; }).sort(function (x, y) { return y.score - x.score; });
+        var recB = rest[0] || null;
+        var manualB = null;
+        if (ui.noteSuitCarrierB) {
+          manualB = rest.filter(function (x) { return x.id === String(ui.noteSuitCarrierB); })[0] || null;
+        }
+        var b = manualB || recB;
+        if (a && b && a.id === b.id) b = null;
         return {
           main: main, pos: pos, a: a, b: b,
+          recA: recA, recB: recB,
+          aManual: !!manualA && !!recA && manualA.id !== recA.id,
+          bManual: !!manualB && !!recB && manualB.id !== recB.id,
+          offPositionA: !!(a && a.position !== pos),
           h: (a ? a.score : 0) + (b ? b.score : 0),
           elite: cand.slice().sort(function (a, b) { return b.score - a.score; }).slice(0, 2),
           eliteH: cand.slice().sort(function (a, b) { return b.score - a.score; }).slice(0, 2).reduce(function (s, x) { return s + (Number(x.score) || 0); }, 0),
-          candidates: cand
+          candidates: cand, posCands: posCands
         };
       }
       function calcSuit() {
@@ -1992,6 +2007,28 @@
         var carrierB = plan.b
           ? '<strong>' + esc(plan.b.character.name) + '</strong>（' + esc(plan.b.position || '—') + ' · 契合 ' + esc(plan.b.score) + ' 分）'
           : '<span class="muted">无可用角色</span>';
+        var carrierOpts = function (selected, excludeId) {
+          var list = plan.candidates.filter(function (x) {
+            if (excludeId && x.id === String(excludeId)) return false;
+            return true;
+          }).sort(function (x, y) {
+            var px = x.position === plan.pos ? 1 : 0;
+            var py = y.position === plan.pos ? 1 : 0;
+            if (px !== py) return py - px;
+            return y.score - x.score;
+          });
+          return '<option value="">自动推荐（最优）</option>' +
+            list.map(function (x) {
+              return '<option value="' + esc(x.id) + '"' + (String(selected && selected.id) === String(x.id) ? ' selected' : '') + '>' +
+                esc(x.character.name) + '（' + esc(x.position || '—') + ' · 契合 ' + esc(x.score) + ' 分' + (x.position === plan.pos ? ' · 目标位置' : '') + '）</option>';
+            }).join('');
+        };
+        var carrierSelectHtml = function (id, selected, excludeId) {
+          return '<select class="select" id="' + id + '" style="max-width:360px;margin-left:6px">' + carrierOpts(selected, excludeId) + '</select>';
+        };
+        var resetCarrier = (plan.aManual || plan.bManual)
+          ? '<button type="button" class="btn btn--sm" id="note-suit-carrier-reset" style="margin-left:8px">恢复推荐</button>'
+          : '';
         var starSelect = function (id, val) {
           return '<select class="select" id="' + id + '" style="max-width:120px">' +
             [['', '无'], ['*', '1★ (+2)'], ['**', '2★ (+5)'], ['***', '3★ (+10)']].map(function (o) {
@@ -2030,10 +2067,13 @@
           '<span class="badge badge--ok">护肝方案</span></div>' +
           '<div class="notice notice--info" style="margin-top:6px"><span class="notice-ico">🍵</span><span class="small">这是<strong>护肝方案</strong>：只把 1 本笔记角色限定在目标位置（A 天然带目标适性词条），B 用任意位置最高契合 → 容易刷。<strong>废肝方案</strong>不是全同位置，而是反过来：<strong>按契合度最高的两名角色来凑</strong>，但这两本笔记本身不带目标适性，需要先给这两个角色刷出目标位置的高等级适性、再分解出红色以上笔记来合成（概率更低、更费肝）；优势是 H 更高，几乎不用刷契合词条。</span></div>' +
           '<div class="small" style="margin-top:6px"><strong>目标：</strong>' + esc(plan.main.name) + ' · 位置适性 <strong>' + esc(plan.pos) + '</strong></div>' +
-          '<div class="small" style="margin-top:4px"><strong>A · 适性笔记角色：</strong>' + carrierA + '<span class="tiny muted">（该位置中契合度最高）</span></div>' +
-          '<div class="small" style="margin-top:2px"><strong>B · 纯契合度笔记角色：</strong>' + carrierB + '<span class="tiny muted">（其余角色中契合度最高）</span></div>' +
-          '<div class="small" style="margin-top:2px">基础契合 H = ' + esc(plan.h) + '（两本关系分之和）</div>' +
-          noteRow('noteA', '笔记 A · 适性笔记', plan.a ? plan.a.character.name : '—', true, '需要带目标位置「' + plan.pos + '」适性词条，否则适性无法 +1 级。') +
+          '<div class="small" style="margin-top:6px"><strong>A · 适性笔记角色：</strong>' + carrierSelectHtml('note-suit-carrier-a', plan.a, null) + resetCarrier + '</div>' +
+          '<div class="small" style="margin-top:4px"><strong>B · 纯契合度笔记角色：</strong>' + carrierSelectHtml('note-suit-carrier-b', plan.b, plan.a && plan.a.id) + '</div>' +
+          (plan.aManual || plan.bManual ? '<div class="tiny muted" style="margin-top:2px">已手动选择笔记角色；下方 H / x / 1280 已按你的选择实时重算。想回到最优方案点「恢复推荐」。</div>' : '<div class="tiny muted" style="margin-top:2px">默认给的是推荐组合；你也可以按自己已有的笔记，手动挑 A/B 角色，下面会实时重算。</div>') +
+          (plan.offPositionA ? '<div class="notice notice--warn" style="margin-top:6px"><span class="notice-ico">⚠️</span><span class="small">你选的 A 角色不在目标位置「' + esc(plan.pos) + '」：这本笔记不会天然带目标位置适性词条，<strong>需要额外给这个角色刷目标位置适性</strong>（更费肝），否则适性无法 +1 级。</span></div>' : '') +
+          '<div class="notice notice--warn" style="margin-top:6px"><span class="notice-ico">🎲</span><span class="small"><strong>适性词条随机抽取：</strong>即使 A 是目标位置角色，只要它还拥有其他位置适性，记录红以上笔记时也可能随机抽到别的位置（实测：千圣 金中锋+白大前 → 红笔记出了大前适性）。想稳出目标位置适性，笔记角色最好<strong>只有目标位置这一种适性</strong>，养成时不要喂出新位置。</span></div>' +
+          '<div class="small" style="margin-top:4px">基础契合 H = ' + esc(plan.h) + '（两本关系分之和）' + (plan.aManual || plan.bManual ? ' · <span style="color:#fbbf24">手动组合</span>' : ' · 推荐组合') + '</div>' +
+          noteRow('noteA', '笔记 A · 适性笔记', plan.a ? plan.a.character.name : '—', true, '需要带目标位置「' + plan.pos + '」适性词条；注意适性词条是随机抽取（见上方提醒）。') +
           noteRow('noteB', '笔记 B · 纯契合度笔记', plan.b ? plan.b.character.name : '—', false, '主要用来补契合度与词条数；是否带适性词条可选。') +
           '<div class="card card--pad" style="margin-top:8px" id="note-suit-fit-slots"><div class="card-head"><div><div class="card-title">契合度词条（最多 4 个）</div>' +
           '<div class="card-sub">理论上可能出现 4 个同一个人的契合度词条（一般不会出现）；每个词条单独选星级：1★+2 / 2★+5 / 3★+10。</div></div></div>' +
@@ -2074,9 +2114,10 @@
       /* ---------------- ② 配套笔记角色（狗粮角色配置） ---------------- */
       function supportState() {
         if (!ui.noteSupport || typeof ui.noteSupport !== 'object') {
-          ui.noteSupport = { targetId: stateId, fodderId: null, dir: 'none' };
+          ui.noteSupport = { targetId: stateId, fodderId: null, dir: 'none', noteBId: null };
         }
         if (!ui.noteSupport.targetId || !byId[String(ui.noteSupport.targetId)]) ui.noteSupport.targetId = stateId;
+        if (ui.noteSupport.noteBId == null) ui.noteSupport.noteBId = '';
         return ui.noteSupport;
       }
       function relationScoreBetween(fromId, toId) {
@@ -2105,9 +2146,7 @@
         var fodder = null;
         if (sp.fodderId && byId[String(sp.fodderId)] && String(sp.fodderId) !== String(target.contentId)) fodder = byId[String(sp.fodderId)];
         if (!fodder) fodder = released.length ? released[0].character : target;
-        var bCands = released.filter(function (x) { return x.id !== String(fodder.contentId) && x.id !== String(target.contentId); });
-        var bestB = bCands.slice().sort(function (a, b) { return (b.score || 0) - (a.score || 0); })[0] || null;
-        // 与狗粮主人契合最高的笔记角色（用于笔记 B）
+        // 与狗粮主人契合最高的笔记角色（用于笔记 B）；同时允许手动改选
         var fodderFit = [];
         if (newData && Array.isArray(newData.characters)) {
           newData.characters.forEach(function (mc) {
@@ -2119,7 +2158,12 @@
           });
         }
         fodderFit.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
-        var noteB = fodderFit[0] || bestB;
+        var noteBRec = fodderFit[0] || null;
+        var manualB = null;
+        if (sp.noteBId) {
+          manualB = fodderFit.filter(function (x) { return x.id === String(sp.noteBId); })[0] || null;
+        }
+        var noteB = manualB || noteBRec;
         var needDir = sp.dir && sp.dir !== 'none' ? sp.dir : defaultDirForRole(target.role);
         var skills = DIR_SKILLS[needDir] || [];
         var targetSkills = (target.skills || []).map(function (s) { return s.name; }).filter(Boolean).slice(0, 6);
@@ -2131,11 +2175,11 @@
               var txt = String(s.skillName || '') + ' ' + String(s.descShort || '') + ' ' + String(s.desc || '');
               return skills.some(function (k) { return txt.indexOf(k) >= 0; });
             });
-            if (hit.length) equipMatches.push({ name: e.name, skills: hit.map(function (x) { return x.skillName; }), count: hit.length });
+            if (hit.length) equipMatches.push({ name: e.name, skills: hit.map(function (x) { return x.skillName; }), count: hit.length, obtainabilityShort: e.obtainabilityShort || '' });
           });
           equipMatches.sort(function (a, b) { return b.count - a.count; });
         }
-        return { sp: sp, target: target, fodder: fodder, released: released, fitForFodder: fodderFit, noteB: noteB, needDir: needDir, skills: skills, targetSkills: targetSkills, equipMatches: equipMatches.slice(0, 5) };
+        return { sp: sp, target: target, fodder: fodder, released: released, fitForFodder: fodderFit, noteB: noteB, noteBRec: noteBRec, noteBManual: !!manualB && !!noteBRec && manualB.id !== noteBRec.id, needDir: needDir, skills: skills, targetSkills: targetSkills, equipMatches: equipMatches.slice(0, 5) };
       }
       function supportPageHtml() {
         var r = supportRoles();
@@ -2145,15 +2189,23 @@
         var dirOpts = '<option value="none"' + (sp.dir === 'none' ? ' selected' : '') + '>无适性（不要求位置适性，只做契合度笔记）</option>' +
           dirOrder.map(function (id) { return '<option value="' + esc(id) + '"' + (sp.dir === id ? ' selected' : '') + '>' + esc(dirLabel(id)) + '</option>'; }).join('');
         var noteB = r.noteB
-          ? '<strong>' + esc(r.noteB.character.name) + '</strong>（与狗粮契合 ' + esc(r.noteB.score) + ' 分）'
+          ? '<strong>' + esc(r.noteB.character.name) + '</strong>（与狗粮契合 ' + esc(r.noteB.score) + ' 分' + (r.noteBManual ? ' · 手动选择' : ' · 推荐') + '）'
           : '<span class="muted">契合度数据不足</span>';
+        var noteBSelect = '<select class="select" id="support-note-b-sel" style="max-width:360px;margin-left:6px">' +
+          '<option value="">自动推荐（' + (r.noteBRec ? esc(r.noteBRec.character.name) : '—') + '）</option>' +
+          r.fitForFodder.map(function (x) {
+            return '<option value="' + esc(x.id) + '"' + (String(r.sp.noteBId || '') === String(x.id) ? ' selected' : '') + '>' +
+              esc(x.character.name) + '（与狗粮契合 ' + (x.score == null ? '—' : esc(x.score)) + ' 分）</option>';
+          }).join('') + '</select>';
         var equipHtml = '';
         var targetPoolTxt = r.targetSkills && r.targetSkills.length
           ? '<div class="small muted" style="margin-top:4px">目标主练技能池参考：' + esc(r.targetSkills.join('、')) + '</div>'
           : '';
         if (r.equipMatches.length) {
           equipHtml = r.equipMatches.map(function (e) {
-            return '<div class="small">· <strong>' + esc(e.name) + '</strong> → ' + esc(e.skills.join('、')) + '</div>';
+            return '<div class="small">· <strong>' + esc(e.name) + '</strong>' +
+              (e.obtainabilityShort ? ' <span class="tiny muted">（' + esc(e.obtainabilityShort) + '）</span>' : '') +
+              ' → ' + esc(e.skills.join('、')) + '</div>';
           }).join('');
         } else {
           equipHtml = '<div class="small muted">器材库未匹配到「' + esc(dirLabel(r.needDir)) + '」技能；请按这些技能方向挑器材：' + esc(r.skills.join('、')) + '</div>';
@@ -2175,11 +2227,13 @@
           '<div class="field"><label class="field-label" for="support-dir"><span class="label-text">目标适性（无适性=不要求位置，纯契合度笔记）</span></label><select class="select" id="support-dir">' + dirOpts + '</select></div>' +
           '</div>' +
           '<div class="small" style="margin-top:8px">' + suitLine + '</div>' +
+          (sp.dir !== 'none' ? '<div class="notice notice--warn" style="margin-top:6px"><span class="notice-ico">🎲</span><span class="small"><strong>注意（2026-11-10 实测）：</strong>记录红以上笔记时，适性词条从狗粮角色拥有的<strong>全部位置适性</strong>中随机抽，不是固定取最高等级。例：千圣 金中锋+白大前 → 红笔记记录出大前而非中锋。<br>所以：<strong>训练这个狗粮时避免让它获得「' + esc(dirLabel(sp.dir)) + '」以外的新位置</strong>，否则可能随机抽到不想要的适性词条。</span></div>' : '') +
           '</div>' +
           '<div class="card card--pad" id="support-notes" style="margin-top:10px"><div class="card-head"><div><div class="card-title">狗粮携带的两本笔记</div>' +
           '<div class="card-sub">第一本固定是目标主练角色的笔记；第二本是狗粮契合度最高的笔记。</div></div></div>' +
           '<div class="small" style="margin-top:6px"><strong>笔记 A（必须）· 目标角色笔记：</strong><span id="support-note-a">' + esc(r.target.name) + '</span> — 提供目标角色契合度词条来源。</div>' +
-          '<div class="small" style="margin-top:4px"><strong>笔记 B · 高契合笔记：</strong><span id="support-note-b">' + noteB + '</span> — 抬高狗粮整体契合度与词条数（越高越好）。</div>' +
+          '<div class="small" style="margin-top:4px"><strong>笔记 B · 高契合笔记：</strong>' + noteBSelect + ' <span id="support-note-b">' + noteB + '</span></div>' +
+          '<div class="tiny muted" style="margin-top:2px">推荐只是默认最优；你可以按自己现有的笔记手动改选，右侧会显示当前与狗粮的契合分。</div>' +
           '</div>' +
           '<div class="card card--pad" id="support-equip" style="margin-top:10px"><div class="card-head"><div><div class="card-title">器材建议（按目标需要的技能教狗粮）</div>' +
           '<div class="card-sub">不是按狗粮自身需求，而是按<strong>目标主练角色的技能池</strong>选器材（无适性也一样）；分解时技能池才会偏向目标需求。</div></div></div>' +
@@ -2195,7 +2249,7 @@
         var rows = [
           { q: '紫色笔记', d: '有概率在初次记录时析出「契合度词条」' },
           { q: '金色笔记', d: '有概率在初次记录时析出「东都大会」专属词条（经理的超能力）——增分项，可大幅加属性，但与我们的配队需求无关' },
-          { q: '红色及以上', d: '初次记录时会析出「适性词条」以及「技能词条」' }
+          { q: '红色及以上', d: '初次记录时会析出「适性词条」（从角色拥有的位置适性中随机抽）以及「技能词条」' }
         ].map(function (r) {
           return '<tr><td><strong>' + esc(r.q) + '</strong></td><td class="small">' + esc(r.d) + '</td></tr>';
         }).join('');
@@ -2208,15 +2262,17 @@
           '<strong>关键限制：</strong>上述特殊词条（契合度 / 东都大会 / 适性 / 技能）都是「<strong>初次记录</strong>」时才可能析出的；' +
           '<strong>合成/修订本身做不出、也析不出</strong>这些词条。不过，<strong>合成/修订可以保留已有词条</strong>（素材里已经带的词条按保留规则留下）。' +
           '</span></div>' +
+          '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">🎲</span><span class="small"><strong>适性词条是随机抽的（2026-11-10 实测）：</strong>红以上笔记记录时，适性词条从角色拥有的<strong>全部位置适性</strong>里随机抽一个，<strong>不是固定取等级最高的那个</strong>。实测：千圣训练结果=金色中锋 + 白色大前（副产物位置），记录成红笔记却出了<strong>大前适性</strong>而非中锋适性。<br>影响：想给某位置做适性笔记，狗粮角色<strong>不要获得目标位置以外的新位置</strong>；否则记录时可能随机抽到不想要的位置。</span></div>' +
           '<div class="small muted" style="margin-top:6px">所以：想要适性词条/技能词条/契合度词条，必须在「初次记录」阶段就刷出来；合成/修订只能用来保留、升星、提品质，不能凭空生成。</div>' +
           '</div>';
       }
       function craftRulesHtml() {
         return '<div class="card card--pad" id="note-craft-rules2">' +
-          '<div class="card-head"><div><div class="card-title">🔧 合成 / 修订规则（之前已确认）</div></div></div>' +
+          '<div class="card-head"><div><div class="card-title">🔧 合成 / 修订规则（旧规则 + 2026-11-11 反例）</div></div></div>' +
           '<ul class="note-rules">' +
           '<li><strong>合成 = 3 本</strong>；<strong>修订 = 2 本</strong>。</li>' +
-          '<li>词条保留（玩家实测）：参与的所有笔记都含同一词条 → 必保留；星级全同 → 升星（1★×3→2★）；星级混杂 → 随机取（大概率低星）。</li>' +
+          '<li>词条保留（旧口径·待复核）：参与的所有笔记都含同一词条 → 必保留；星级全同 → 升星（1★×3→2★）；星级混杂 → 随机取（大概率低星）。</li>' +
+          '<li style="color:#fbbf24"><strong>2026-11-11 反例：</strong>三本希雅紫笔记（带「野上 + 白神」契合）合成出金笔记，结果只剩 <strong>2 条 1★ 白神契合</strong>，野上消失、星级下降 → <strong>合成词条/星级可能比旧口径更随机</strong>，不要把「共有词条必保留」当成稳保；重要词条别只靠合成保留。</li>' +
           '<li>适性词条修订：两本必须都有相同适性才保留，否则大概率消失。</li>' +
           '<li>合成最高出红色；<strong>彩色只能走修订</strong>（红+红、彩+彩）。</li>' +
           '<li>合成产物不带适性词条（适性仅「初次记录」红色以上才可能出）。</li>' +
@@ -2260,6 +2316,8 @@
       function selectTarget(id) {
         stateId = String(id);
         ui.selectedNoteTarget = stateId;
+        ui.noteSuitCarrierA = null;
+        ui.noteSuitCarrierB = null;
         if (ctx.save) ctx.save();
         ensureDraft();
         chainEntry = entryDraft[0] ? entryDraft[0].name : '';
@@ -2320,10 +2378,31 @@
             suitStateObj.fitSlots[i] = slot.value; ui.noteSuitNotes = suitStateObj; if (ctx.save) ctx.save(); renderAll();
           });
         });
+        var carrierA = dom.qs('#note-suit-carrier-a', el);
+        if (carrierA) carrierA.addEventListener('change', function () {
+          ui.noteSuitCarrierA = carrierA.value || null;
+          if (ui.noteSuitCarrierB && ui.noteSuitCarrierB === ui.noteSuitCarrierA) ui.noteSuitCarrierB = null;
+          if (ctx.save) ctx.save();
+          renderAll();
+        });
+        var carrierB = dom.qs('#note-suit-carrier-b', el);
+        if (carrierB) carrierB.addEventListener('change', function () {
+          ui.noteSuitCarrierB = carrierB.value || null;
+          if (ctx.save) ctx.save();
+          renderAll();
+        });
+        var carrierReset = dom.qs('#note-suit-carrier-reset', el);
+        if (carrierReset) carrierReset.addEventListener('click', function () {
+          ui.noteSuitCarrierA = null;
+          ui.noteSuitCarrierB = null;
+          if (ctx.save) ctx.save();
+          renderAll();
+        });
         var supportBind = {
           '#support-target': 'targetId',
           '#support-fodder': 'fodderId',
-          '#support-dir': 'dir'
+          '#support-dir': 'dir',
+          '#support-note-b-sel': 'noteBId'
         };
         Object.keys(supportBind).forEach(function (sel) {
           var node = dom.qs(sel, el);

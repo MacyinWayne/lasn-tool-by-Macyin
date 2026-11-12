@@ -188,6 +188,7 @@
       (ch.school ? '<span class="tag">' + dom.esc(ch.school) + '</span>' : '') +
       (ch.heightCm ? '<span class="small muted">' + ch.heightCm + ' cm</span>' : '') +
       (ch.weightKg ? '<span class="small muted">' + ch.weightKg + ' kg</span>' : '') +
+      (ch.spanCm ? '<span class="small muted">臂展 ' + ch.spanCm + ' cm</span>' : '') +
       '</div></div>' +
       '<div style="text-align:right">' +
       '<div class="small muted">六维总和</div>' +
@@ -377,6 +378,10 @@
         dom.esc(ch.source) + '</a>' : '—') +
       (ch.sourceUpdatedAt ? ' · 更新于 ' + dom.esc(ch.sourceUpdatedAt) : '') +
       '<br/>置信度：' + dom.confBadge(ch.confidence) +
+      (ch.attributeSourceType ? '<br/>属性来源：' + dom.esc(ch.attributeSourceType) : '') +
+      (ch.attributesSource ? '<br/><span class="tiny muted">' + dom.esc(ch.attributesSource) + '</span>' : '') +
+      (ch.bodySource ? '<br/><span class="tiny muted">体格来源：' + dom.esc(ch.bodySource) + '</span>' : '') +
+      (ch.releaseInfo && ch.releaseInfo.detail ? '<br/>实装：' + dom.esc(ch.releaseInfo.version || '') + ' · ' + dom.esc(ch.releaseInfo.detail) : '') +
       ' 属性/潜力为 wiki 标注的参考数值，非游戏内实际面板，以游戏内为准。</span></div>';
 
     return html;

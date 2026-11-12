@@ -54,6 +54,13 @@
         { key: 'cup-main', label: '杯赛主阵', note: '当届杯赛主力阵容' },
         { key: 'cup-sub', label: '杯赛备用阵', note: '当届杯赛备用/针对' }
       ]
+    },
+    {
+      id: 'endless',
+      name: '无尽之路',
+      icon: '🛤️',
+      status: '暂未实装',
+      desc: '1.0.21/res20 新增玩法（配置表 S1.cn.endless_road）：赛季制 PVE 无尽挑战，段位名「大赛历战」。以下内容全部来自解包，玩法入口与规则待实装验证。'
     }
   ];
 
@@ -122,7 +129,38 @@
   function ownedFilterNote() {
     var app = root.BBT && root.BBT.app;
     if (!app || typeof app.isOwnedByName !== 'function' || !app.ownedIds) return '';
-    return '<span class="badge badge--ok">已按「我的角色」过滤：' + esc(app.ownedIds.length) + ' 人</span>';
+    return '<span class="badge badge--ok">我的角色：' + esc(app.ownedIds.length) + ' 人（下拉显示全部，未拥有已标记）</span>';
+  }
+  /* 全角色列表（PVP/圣山/杯赛自选下拉共用；不再用「我的角色」隐藏，只标记未拥有） */
+  function allCharEntries() {
+    var map = Object.create(null);
+    var gd = root.BBT && root.BBT.gameData;
+    var chars = gd && typeof gd.characters === 'function' ? gd.characters() : [];
+    chars.forEach(function (c) { if (c && c.name) map[c.name] = { name: c.name, role: c.role || c.style || '' }; });
+    pvpCharList(pvpData()).forEach(function (c) { if (c && c.name && !map[c.name]) map[c.name] = { name: c.name, role: c.primaryRole || '' }; });
+    var S = saintData();
+    if (S && S.meta) Object.keys(S.meta).forEach(function (n) { if (n && !map[n]) map[n] = { name: n, role: '' }; });
+    return Object.keys(map).sort().map(function (n) { return map[n]; });
+  }
+  function ownedMark(name) {
+    return ownedName(name) ? '' : '（未拥有）';
+  }
+  /* PVP 锁定：其他两阵已选 + 当前阵其他位置已选（当前格自己的值由调用方保留） */
+  function pvpLockedNames(dir, pos) {
+    var draft = loadPvpDraft();
+    var locked = Object.create(null);
+    Object.keys(draft.teams).forEach(function (d) {
+      if (d === dir) return;
+      PVP_POS.forEach(function (p) { var nm = (draft.teams[d] || {})[p]; if (nm) locked[nm] = d; });
+    });
+    var team = draft.teams[dir] || {};
+    PVP_POS.forEach(function (p) { if (p === pos) return; var nm = team[p]; if (nm) locked[nm] = 'same-team'; });
+    return locked;
+  }
+  function dupNames(values) {
+    var seen = Object.create(null); var dup = Object.create(null);
+    values.forEach(function (n) { if (!n) return; if (seen[n]) dup[n] = 1; seen[n] = 1; });
+    return Object.keys(dup);
   }
   function pickOwnedSlot(slot) {
     if (!slot) return null;
@@ -231,17 +269,21 @@
     var rm = pvpRoleMap(P);
     var rows = PVP_POS.map(function (pos) {
       var cur = (draft.teams[dir] || {})[pos] || '';
-      var used = usedAcrossTeams(P, dir);
-      var cands = candidateList(P, dir, pos)
-        .filter(function (x) { return !used[x.name]; })
+      var locked = pvpLockedNames(dir, pos);
+      // 下拉 = 全部 38 人（按该位置/方向推荐分排序）；PVP 锁：排除其他阵/本阵其他位置已选，当前格自己的值保留
+      var full = candidateList(P, dir, pos, true);
+      var cands = full
+        .filter(function (x) { return !locked[x.name] || x.name === cur; })
         .slice(0, 4)
         .map(function (x) { return '<button type="button" class="tag" data-pvp-chip="' + esc(pos) + '|' + esc(x.name) + '" title="' + esc(x.role) + '">' + esc(x.name) + ' ' + esc(x.stars) + '★</button>'; })
         .join(' ');
-      var options = candidateList(P, dir, pos).slice(0, 20).map(function (x) {
-        return '<option value="' + esc(x.name) + '"' + (x.name === cur ? ' selected' : '') + '>' + esc(x.name) + '（' + esc(x.stars) + '★ · ' + esc(x.role) + '）</option>';
-      }).join('');
+      var options = full
+        .filter(function (x) { return !locked[x.name] || x.name === cur; })
+        .map(function (x) {
+          return '<option value="' + esc(x.name) + '"' + (x.name === cur ? ' selected' : '') + '>' + esc(x.name) + '（' + esc(x.stars) + '★ · ' + esc(x.role) + '）' + esc(ownedMark(x.name)) + '</option>';
+        }).join('');
       return '<tr><td><strong>' + esc(pos) + '</strong></td>' +
-        '<td><select class="select" data-pvp-sel="' + esc(pos) + '" style="max-width:220px"><option value="">— 选择 —</option>' + options + '</select></td>' +
+        '<td><select class="select" data-pvp-sel="' + esc(pos) + '" style="max-width:240px"><option value="">— 选择 —</option>' + options + '</select></td>' +
         '<td class="small">' + (cands || '<span class="muted">—</span>') + '</td></tr>';
     }).join('');
     var m = teamMetrics(P, dir);
@@ -250,7 +292,7 @@
     Object.keys(draft.teams).forEach(function (d) { PVP_POS.forEach(function (pos) { var nm = draft.teams[d][pos]; if (nm) uniqUsed[nm] = 1; }); });
     return '<div class="card card--pad" id="pvp-builder" style="margin-top:10px">' +
       '<div class="card-head"><div><div class="card-title">🛠️ 自选配队（选方向 → 每位置选人/推荐）</div>' +
-      '<div class="card-sub">先确定体系方向（攻筐/中投/三分），系统按该方向给每个位置推荐候选；你可自由替换。建议每队 1~2 主攻 + 组织 + 防守 + 篮板。</div></div>' +
+      '<div class="card-sub">先确定体系方向（攻筐/中投/三分），系统按该方向给每位置推荐候选；下拉=全部 38 人（推荐序在前）。<strong>PVP 选一个锁一个</strong>：已选角色在其他阵/本阵其他位置自动隐藏；建议每队 1~2 主攻 + 组织 + 防守 + 篮板。</div></div>' +
       '<span class="badge badge--client">玩家自选</span></div>' +
       '<div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap">' + tabs + ownedFilterNote() +
       '<button type="button" class="btn btn--sm btn--ghost" data-pvp-load="' + dir + '">载入我的' + esc((PVP_DIRS.filter(function (d) { return d.key === dir; })[0] || {}).label || '') + '</button>' +
@@ -265,7 +307,7 @@
       '<span class="badge badge--neutral">回能量 ' + m.energy + '</span>' +
       '<span class="badge badge--neutral">持球大招标记 ' + m.ball + '</span><span class="badge badge--neutral">本系亲和 ' + m.affinity + '</span></div>' +
       '<div class="row" style="gap:4px;margin-top:6px;flex-wrap:wrap">' + (warnHtml || '<span class="badge badge--ok">结构 OK</span>') + '</div>' +
-      '<div class="tiny muted" style="margin-top:6px">三阵合计已用角色 ' + Object.keys(uniqUsed).length + '/15（不同阵不能重复；换阵时请避免重复）</div>' +
+      '<div class="tiny muted" style="margin-top:6px">三阵合计已用角色 ' + Object.keys(uniqUsed).length + '/15（PVP 锁：选一个锁一个，已选角色在其他阵/本阵其他位置自动隐藏；当前格只在此处出现时保留）</div>' +
       '</div>';
   }
   function pvpAutoHtml(P) {
@@ -440,25 +482,33 @@
   }
   function saintBuilderHtml(key) {
     var S = saintData(); if (!S || !S.meta) return '';
-    var names = Object.keys(S.meta).filter(ownedName).sort();
-    if (!names.length) names = Object.keys(S.meta).sort();
+    // 2026-11-12 用户口径：下拉列全部角色（不再按「我的角色」隐藏），未拥有只标记；圣山不锁定（可重复，仅软提示）
+    var entries = allCharEntries();
+    if (!entries.length) entries = Object.keys(S.meta).sort().map(function (n) { return { name: n, role: '' }; });
     var plan = S.plans[key] || {};
     var team = saintTeamOf(key);
     var recNames = (plan.slots || []).map(function (s) { var pk = pickOwnedSlot(s); return pk ? pk.name : ''; });
     var slots = SAINT_POS.map(function (pos, i) {
       var cur = team[pos] || '';
-      var opts = names.map(function (n) { return '<option value="' + esc(n) + '"' + (n === cur ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('');
+      var opts = entries.map(function (x) {
+        return '<option value="' + esc(x.name) + '"' + (x.name === cur ? ' selected' : '') + '>' +
+          esc(x.name) + (x.role ? '（' + esc(x.role) + '）' : '') + esc(ownedMark(x.name)) + '</option>';
+      }).join('');
       var rec = recNames[i] ? '<span class="tiny muted">推荐：' + esc(recNames[i]) + '</span>' : '';
       return '<tr><td><strong>' + esc(pos) + '</strong></td>' +
-        '<td><select class="select" data-saint-sel="' + esc(pos) + '" style="max-width:200px"><option value="">— 选择 —</option>' + opts + '</select></td>' +
+        '<td><select class="select" data-saint-sel="' + esc(pos) + '" style="max-width:220px"><option value="">— 选择 —</option>' + opts + '</select></td>' +
         '<td class="small">' + rec + '</td></tr>';
     }).join('');
     var chk = saintChecks(key);
     var mm = saintMountainMeta(key);
+    var dup = dupNames(SAINT_POS.map(function (p) { return team[p]; }));
+    var dupHtml = dup.length
+      ? '<span class="badge badge--warn">重复选择：' + esc(dup.join('、')) + '（圣山不锁定，可重复；仅提示）</span>'
+      : '<span class="badge badge--ok">不锁定：可跨山/同山重复使用</span>';
     var warnHtml = (chk.warns || []).map(function (w) { return '<span class="badge badge--warn">' + esc(w) + '</span>'; }).join(' ');
     return '<div class="card card--pad" id="saint-builder" style="margin-bottom:10px">' +
       '<div class="card-head"><div><div class="card-title">🛠️ 自选配队（' + esc(mm.name) + '）</div>' +
-      '<div class="card-sub">当前圣山：' + esc(mm.name) + '（破盾 ' + esc(mm.attr) + '）· 检查破盾手/偷分手/回能/组织；缺角色可参考上方下位替代。</div></div>' +
+      '<div class="card-sub">当前圣山：' + esc(mm.name) + '（破盾 ' + esc(mm.attr) + '）· 圣山<strong>不锁定</strong>：下拉=全部角色（未拥有已标记），同山/跨山可重复选，仅提示不禁止。</div></div>' +
       '<span class="badge badge--client">玩家自选</span></div>' +
       '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' +
       '<button type="button" class="btn btn--sm btn--ghost" data-saint-load="' + key + '">载入推荐</button>' +
@@ -467,7 +517,7 @@
       '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' +
       '<span class="badge badge--warn">破盾手 ' + chk.counts.breakers + '</span><span class="badge badge--info">偷分手 ' + chk.counts.stealers + '</span>' +
       '<span class="badge badge--info">回能 ' + chk.counts.energy + '</span><span class="badge badge--neutral">组织 ' + chk.counts.playmaker + '</span>' +
-      '<span class="badge badge--neutral">双职 ' + chk.counts.dual + '</span></div>' +
+      '<span class="badge badge--neutral">双职 ' + chk.counts.dual + '</span>' + dupHtml + '</div>' +
       '<div class="row" style="gap:4px;margin-top:6px;flex-wrap:wrap">' + (warnHtml || '<span class="badge badge--ok">结构 OK</span>') + '</div></div>';
   }
   function saintCandidatesHtml(key) {
@@ -505,12 +555,187 @@
       '<br><span class="tiny muted">' + esc(br.colorNote || '') + '</span></span></div></details>';
   }
 
+
+  function cupData() {
+    var s = (typeof window !== 'undefined' && window.BBScenarios) || null;
+    return s && s.cupEvents ? s.cupEvents : null;
+  }
+
+  /* ===== 杯赛自选配队（2026-11-12 用户口径：杯赛不锁定，可重复；全角色下拉 + 未拥有标记） ===== */
+  var cupDraftCache = null;
+  function cupDraftDefault() { return { teams: { 'cup-main': {}, 'cup-sub': {} } }; }
+  function loadCupDraft() {
+    if (cupDraftCache) return cupDraftCache;
+    try {
+      var raw = root.localStorage && root.localStorage.getItem('bbt.cup.draft.v1');
+      var parsed = raw ? JSON.parse(raw) : null;
+      cupDraftCache = parsed && parsed.teams ? parsed : cupDraftDefault();
+    } catch (e) { cupDraftCache = cupDraftDefault(); }
+    if (!cupDraftCache.teams) cupDraftCache.teams = {};
+    return cupDraftCache;
+  }
+  function saveCupDraft() { try { if (root.localStorage) root.localStorage.setItem('bbt.cup.draft.v1', JSON.stringify(cupDraftCache)); } catch (e) {} }
+  function cupTeamOf(key) { var d = loadCupDraft(); return (d.teams && d.teams[key]) || {}; }
+  function setCupTeam(key, team) { var d = loadCupDraft(); if (!d.teams) d.teams = {}; d.teams[key] = team || {}; saveCupDraft(); }
+  function cupBuilderHtml(group) {
+    var entries = allCharEntries();
+    var team = cupTeamOf(group.key);
+    var dup = dupNames(SAINT_POS.map(function (p) { return team[p]; }));
+    var rows = SAINT_POS.map(function (pos) {
+      var cur = team[pos] || '';
+      var opts = entries.map(function (x) {
+        return '<option value="' + esc(x.name) + '"' + (x.name === cur ? ' selected' : '') + '>' +
+          esc(x.name) + (x.role ? '（' + esc(x.role) + '）' : '') + esc(ownedMark(x.name)) + '</option>';
+      }).join('');
+      return '<tr><td><strong>' + esc(pos) + '</strong></td>' +
+        '<td><select class="select" data-cup-sel="' + esc(group.key) + '|' + esc(pos) + '" style="max-width:240px"><option value="">— 选择 —</option>' + opts + '</select></td></tr>';
+    }).join('');
+    return '<div class="card card--pad" data-cup-team="' + esc(group.key) + '" style="padding:10px">' +
+      '<div class="card-head"><div><div class="card-title">' + esc(group.label) + '</div>' +
+      '<div class="card-sub">' + esc(group.note || '') + ' · 5 个位置 · <strong>不锁定</strong>（可重复使用；下届杯赛规则待更新）</div></div>' +
+      '<span class="badge badge--client">玩家自选</span></div>' +
+      (dup.length ? '<div class="row" style="gap:4px;margin-top:6px;flex-wrap:wrap"><span class="badge badge--warn">重复选择：' + esc(dup.join('、')) + '（杯赛不锁定，仅提示）</span></div>' : '') +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:420px"><thead><tr><th>位置</th><th>选择</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap"><button type="button" class="btn btn--sm btn--ghost" data-cup-clear="' + esc(group.key) + '">清空</button>' +
+      '<span class="tiny muted">杯赛不锁定：可跨模式/同队重复；下拉=全部角色（未拥有已标记）</span></div></div>';
+  }
+
+  function cupSectionHtml(sec) {
+    var notes = loadNotes();
+    var data = cupData();
+    var ev = data && (data.events || []).filter(function (e) { return e.id === 'lidong-cup'; })[0];
+    if (!ev) ev = data && (data.events || [])[0];
+    var head = '<div class="card card--pad" id="lineup-section-cup">' +
+      '<div class="card-head"><div><div class="card-title">🏆 杯赛配置 · ' + esc((ev && ev.name) || '当届杯赛') + '</div>' +
+      '<div class="card-sub">' + esc((ev && ev.summary) || sec.desc) + '</div></div>' +
+      '<span class="badge badge--warn">' + esc((ev && ev.statusLabel) || '已结束') + ' · 规则参考 · 需经常更新</span></div>' +
+      '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">📌</span><span class="small">' +
+      '本页记录的是<strong>已结束的立冬杯</strong>，仅作为杯赛机制参考；下一届杯赛规则可能不同，不要直接套用。' +
+      '</span></div></div>';
+    if (!ev) {
+      return head + '<div class="small muted">杯赛数据待补。</div>';
+    }
+
+    var terrain = ev.terrain || {};
+    var terrainCard = '<div class="card card--pad" id="cup-terrain" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🌧️ 特别场地特性 · ' + esc(terrain.name || '') + '</div>' +
+      '<div class="card-sub">触发时间：' + esc(terrain.timing || '—') + '</div></div>' +
+      '<span class="badge badge--info">场地规则</span></div>' +
+      '<ul class="small" style="margin:8px 0 0 18px">' + (terrain.effects || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
+
+    var zones = '<div class="card card--pad" id="cup-zones" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🎯 赛区 & 奖励</div>' +
+      '<div class="card-sub">两个赛区奖励基本相同，区别只在时尚小垃圾。</div></div></div>' +
+      '<div class="grid grid--2" style="gap:8px;margin-top:6px">' +
+      (ev.zones || []).map(function (z) {
+        return '<div class="card card--pad" style="padding:8px"><strong>' + esc(z.name) + '</strong><div class="small muted">' + esc(z.restriction) + '</div></div>';
+      }).join('') + '</div>' +
+      '<div class="small" style="margin-top:8px"><strong>奖励：</strong>' + esc(ev.rewards && ev.rewards.same || '') + '</div>' +
+      '<div class="small muted" style="margin-top:2px">差异：' + esc(ev.rewards && ev.rewards.difference || '') + '</div></div>';
+
+    var stages = '<div class="card card--pad" id="cup-format" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">📋 赛制流程（三轮）</div>' +
+      '<div class="card-sub">' + esc(ev.formatNote || '') + '</div></div><span class="badge badge--neutral">已结束 · 参考</span></div>' +
+      (ev.format || []).map(function (st, i) {
+        return '<div class="card card--pad" data-cup-stage="' + i + '" style="margin-top:6px;padding:8px">' +
+          '<div class="small"><strong>' + esc(st.stage) + '</strong> · ' + esc(st.duration || '') + '</div>' +
+          '<div class="small" style="margin-top:3px">' + esc(st.rule) + '</div>' +
+          '<div class="tiny muted" style="margin-top:3px">' + esc(st.chances || '') + '</div></div>';
+      }).join('') + '</div>';
+
+    var quiz = ev.quiz ? ('<div class="card card--pad" id="cup-quiz" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🔮 ' + esc(ev.quiz.title) + '</div>' +
+      '<div class="card-sub">决赛会开竞猜；这里有一个很容易理解错的点。</div></div><span class="badge badge--warn">特别注明</span></div>' +
+      '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">⚠️</span><span class="small"><strong>误区：</strong>' + esc(ev.quiz.wrong) + '</span></div>' +
+      '<div class="notice notice--ok" style="margin-top:6px"><span class="notice-ico">✅</span><span class="small"><strong>实际竞猜的是：</strong>' + esc(ev.quiz.right) + '</span></div>' +
+      '<div class="small" style="margin-top:6px"><strong>要考虑：</strong>' + (ev.quiz.factors || []).map(function (x) { return '<span class="tag">' + esc(x) + '</span>'; }).join(' ') + '</div>' +
+      '<div class="small" style="margin-top:8px"><strong>立冬杯答案：</strong>' + esc(ev.quiz.lidongAnswer) + '</div>' +
+      '<div class="tiny muted" style="margin-top:3px">' + esc(ev.quiz.lidongWhy) + '</div>' +
+      '<div class="tiny muted" style="margin-top:6px">' + esc(ev.quiz.note) + '</div></div>') : '';
+
+    return head + terrainCard + zones + stages + quiz +
+      '<div class="card card--pad" id="cup-slots" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🥊 当届杯赛阵容（自选）</div><div class="card-sub">主阵/备用阵各 5 位置，<strong>不锁定</strong>（可重复使用；工具不做限制，游戏内固定队伍属赛制规则）；立冬杯只作机制参考，下一届需更新。</div></div>' +
+      '<span class="badge badge--neutral">下一届需更新</span></div>' +
+      '<div class="grid grid--2" style="gap:12px;margin-top:10px">' + (sec.groups || []).map(cupBuilderHtml).join('') + '</div></div>' +
+      '<div class="team-sub-label" style="margin-top:12px">杯赛规则 / 限制（可补充）</div>' +
+      '<textarea class="input" id="lineup-note-cup" data-lineup-note="cup" rows="4" maxlength="4000" placeholder="补充杯赛规则/限制/配队思路（自动保存到本地）…">' + esc(notes['cup'] || '') + '</textarea>';
+  }
+
+  function endlessSectionHtml(sec) {
+    var notes = loadNotes();
+    var warn = '<div class="card card--pad" id="lineup-section-endless">' +
+      '<div class="card-head"><div><div class="card-title">🛤️ 无尽之路 · 解包结果</div>' +
+      '<div class="card-sub">' + esc(sec.desc) + '</div></div>' +
+      '<span class="badge badge--warn">暂未实装</span></div>' +
+      '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">🤔</span><span class="small">' +
+      '<strong>⚠️ 现在不是看这个页签的时候（疑惑口径，先当可疑线索）</strong><br>' +
+      '① S1 赛季从<strong>开服日（2026-10-23）</strong>开始 → 说明 S1 内容<strong>可能已在游戏内实装</strong>，最可能对应现有 PVE 玩法「<strong>全国大赛</strong>」；<br>' +
+      '② 但解包出的奖励结构（每 100 级一档 + 排名奖励）与全国大赛「<strong>5 关一个大包、每关都有奖励</strong>」的实机记忆不符；<br>' +
+      '③ 所以也可能是全新玩法，或全国大赛的改版配置。<br>' +
+      '<strong>结论：不要据此行动</strong>，等实机入口/奖励验证后再用；本页只记录解包骨架，规则全部未验证。' +
+      '</span></div>' +
+      '<div class="small muted" style="margin-top:6px">数据：res20 包 <span class="inline-code">S1.cn.endless_road.sw</span>（9 表 / 1611 条记录）；解包结果，无官方玩法说明。</div></div>';
+
+    var structure = '<div class="card card--pad" id="endless-structure" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">📦 结构（配置层）</div>' +
+      '<div class="card-sub">赛季 → 章节 → 关卡；段位名「大赛历战」。</div></div>' +
+      '<span class="badge badge--client">客户端解包</span></div>' +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:520px"><thead><tr><th>项</th><th>配置内容</th></tr></thead><tbody>' +
+      '<tr><td><strong>赛季</strong></td><td>2 个：S1 = <strong>2026-10-23 21:00</strong>（开服日）→ S2 = <strong>2026-12-24 21:00</strong> 开启</td></tr>' +
+      '<tr><td><strong>章节</strong></td><td>2 个：「无尽1」「无尽2」</td></tr>' +
+      '<tr><td><strong>关卡</strong></td><td>max_level = <strong>192 级</strong>；match 表 <strong>399 个「单打演练 N」</strong>（1v1），敌人队伍 ID 从 10002 递增</td></tr>' +
+      '<tr><td><strong>段位名</strong></td><td>「<strong>大赛历战</strong>」（endless_road.rank_show_name）</td></tr>' +
+      '</tbody></table></div></div>';
+
+    var mechanics = '<div class="card card--pad" id="endless-mechanics" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">⚙️ 关卡机制（配置层）</div>' +
+      '<div class="card-sub">从 level / match / match_skill 表反推，玩法效果待实装验证。</div></div>' +
+      '<span class="badge badge--info">推断</span></div>' +
+      '<ul class="small" style="margin:8px 0 0 18px">' +
+      '<li><strong>主题效果</strong>：部分关卡带 theme（101~202），即比赛附加/主题效果（与球员页「赛制主题效果」同源）。</li>' +
+      '<li><strong>比分干预</strong>：57 个关卡配置了「全国大赛比分干预技能」（技能 7002~7084，共 83 个 id）——用于比分控制/难度调节。</li>' +
+      '<li><strong>关卡类型</strong>：match 全部为「单打演练」（match_template_id = 12 = SYSTEM 模板），敌人是预设队伍（10002+）。</li>' +
+      '<li><strong>hard / stage / unlock 字段</strong>：level 表另有 hard 标记（16777216 位）与 unlock 解锁字段，具体语义待实装确认。</li>' +
+      '</ul></div>';
+
+    var rewards = '<div class="card card--pad" id="endless-rewards" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🎁 奖励结构（配置层）</div>' +
+      '<div class="card-sub">等级奖励 + 排名奖励 + 「速度无尽」系列奖励包。</div></div>' +
+      '<span class="badge badge--info">推断</span></div>' +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:520px"><thead><tr><th>奖励类型</th><th>档位</th><th>奖励包</th></tr></thead><tbody>' +
+      '<tr><td><strong>等级奖励</strong>（level_reward）</td><td>每 100 级一档：100 / 200 / 300 … 1000 级</td><td>620001（100 级）/ 620002（200 级）/ 620003（300 级及以后）</td></tr>' +
+      '<tr><td><strong>排名奖励</strong>（rank_reward）</td><td>rank 100 / 200 / 300</td><td>620001 / 620002 / 620003</td></tr>' +
+      '<tr><td><strong>奖励包内容</strong></td><td>item_drop_conf 中「速度无尽3000 / 6000 / 9000 / 12000」系列（id 600501+）</td><td>每包 48 件道具（item id 48）</td></tr>' +
+      '</tbody></table></div>' +
+      '<div class="small muted" style="margin-top:6px">注：奖励 id 指向 item_drop_conf 的掉落包，具体道具内容未展开（等实装/更多样本再补）。</div></div>';
+
+    var todo = '<div class="card card--pad" id="endless-todo" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">📌 待实装验证</div>' +
+      '<div class="card-sub">以下问题只有实机才能回答，页面先占位不虚构。</div></div>' +
+      '<span class="badge badge--warn">待补</span></div>' +
+      '<ul class="small" style="margin:8px 0 0 18px">' +
+      '<li>玩法入口在哪（主界面/活动页）；是否需要门票/次数限制。</li>' +
+      '<li>胜负与计分规则（单打演练怎么算赢/输、等级怎么涨）。</li>' +
+      '<li>「比分干预技能」在实战中的具体表现（是否动态调整比分/难度）。</li>' +
+      '<li>奖励发放方式（等级档自动发？排名结算周期？）。</li>' +
+      '<li>与全国大赛/圣山无尽模式的区别（是否共用模板 SYSTEM=12）。</li>' +
+      '</ul></div>';
+
+    return warn + structure + mechanics + rewards + todo +
+      '<div class="team-sub-label" style="margin-top:12px">实机见闻 / 规则补充（可写）</div>' +
+      '<textarea class="input" id="lineup-note-endless" data-lineup-note="endless" rows="4" maxlength="4000" placeholder="补充无尽之路的实机见闻：入口、规则、奖励、自己的打法（自动保存到本地）…">' + esc(notes['endless'] || '') + '</textarea>' +
+      '<div class="tiny muted" style="margin-top:6px">数据来源：客户端 res20 包 S1.cn.endless_road.sw（season/chapter/level/match/level_reward/rank_reward 等 9 表）、S1.cn.item_drop_conf、S1.cn.match_skill（7002~7084）；本页为解包结果，暂未实装标注。</div>';
+  }
+
   function sectionHtml(sec) {
     var notes = loadNotes();
+    if (sec.id === 'endless') return endlessSectionHtml(sec);
+    if (sec.id === 'cup') return cupSectionHtml(sec);
     if (sec.id === 'pvp') {
       return '<div class="card card--pad" id="lineup-section-pvp" style="margin-bottom:12px">' +
         '<div class="card-head"><div><div class="card-title">⚔️ PVP 三阵配置（自选 + 基线 + 自动参考）</div>' +
-        '<div class="card-sub">PVP 无场地加成，唯一硬约束=角色池深度：3 阵×5 人=15 名不同角色（每阵不能重复）。</div></div>' +
+        '<div class="card-sub">PVP 无场地加成，唯一硬约束=角色池深度：3 阵×5 人=15 名不同角色（<strong>选一个锁一个</strong>，其他阵/位置自动隐藏）。圣山/杯赛不锁定。</div></div>' +
         '<span class="badge badge--client">规则已录入</span></div>' +
         pvpHtml() +
         '<div class="team-sub-label" style="margin-top:12px">规则 / 限制 / 出场顺序（待补充）</div>' +
@@ -620,17 +845,17 @@
     icon: '⚔️',
     title: '实战配队',
     subtitle:
-      '战斗配队框架：PVP 三阵配置（主/副/奇阵）、圣山队伍配置（蓝/紫/绿/红）、杯赛配置（按当届杯赛维护）。赛制规则逐块补充。',
+      '战斗配队框架：PVP 三阵配置（主/副/奇阵）、圣山队伍配置（蓝/紫/绿/红）、杯赛配置（按当届杯赛维护）、无尽之路（1.0.21 新增 · 解包结果 · 暂未实装）。PVP 选一个锁一个（15 名不同角色）；圣山/杯赛不锁定，可重复使用。赛制规则逐块补充。',
     dataNote:
-      '本页来源：框架页（栏目结构 + 规则占位 + 每阵容 5 位置槽位）；赛制规则/限制/克制/出场顺序待用户逐块说明后填充（不虚构规则）。备注自动保存 localStorage（bbt.lineup.v1）。',
+      '本页来源：框架页（栏目结构 + 规则占位 + 每阵容 5 位置槽位）+ 无尽之路（res20 解包 S1.cn.endless_road.sw）；赛制规则/限制/克制/出场顺序待用户逐块说明后填充（不虚构规则）。备注自动保存 localStorage（bbt.lineup.v1）。',
     mount: function (el) {
       saintViewKey = null; // 每次进入页面默认看当前圣山
       el.innerHTML =
         styleBonusHtml() +
         '<div class="card card--pad" style="margin-bottom:12px">' +
         '<div class="card-head"><div>' +
-        '<div class="card-title"><span class="ico">⚔️</span>实战配队 · 三套战斗配置</div>' +
-        '<div class="card-sub">PVP 三阵配置 / 圣山队伍配置 / 杯赛配置 —— 不同赛制规则不同，当前为可扩展框架。</div>' +
+        '<div class="card-title"><span class="ico">⚔️</span>实战配队 · 四套战斗配置</div>' +
+        '<div class="card-sub">PVP 三阵配置 / 圣山队伍配置 / 杯赛配置 / 无尽之路（暂未实装）—— PVP 选一个锁一个（3 阵×5 人=15 名不同角色，其他阵/位置自动隐藏）；圣山/杯赛不锁定、可重复使用。当前为可扩展框架。</div>' +
         '</div><span class="badge badge--warn">框架待补充规则</span></div>' +
         '<div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap">' + tabsHtml() + '</div>' +
         '</div>' +
@@ -689,6 +914,16 @@
       dom.delegate(el, '[data-pvp-clear]', 'click', function (ev, t) {
         var dir = t.getAttribute('data-pvp-clear');
         var d = loadPvpDraft(); d.teams[dir] = {}; savePvpDraft(); renderPvp(el);
+      });
+
+      // ===== 杯赛自选配队交互（不锁定，localStorage 持久化） =====
+      dom.delegate(el, '[data-cup-sel]', 'change', function (ev, t) {
+        var parts = String(t.getAttribute('data-cup-sel') || '').split('|');
+        if (parts.length !== 2) return;
+        var team = cupTeamOf(parts[0]); team[parts[1]] = t.value || ''; setCupTeam(parts[0], team); paint(el);
+      });
+      dom.delegate(el, '[data-cup-clear]', 'click', function (ev, t) {
+        setCupTeam(t.getAttribute('data-cup-clear'), {}); paint(el);
       });
       dom.delegate(el, 'select[data-pvp-sel]', 'change', function (ev, t) {
         var pos = t.getAttribute('data-pvp-sel');

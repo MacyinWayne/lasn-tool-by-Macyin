@@ -422,6 +422,17 @@
           }).join('');
         }
         var unreleasedNames = ((tierData.unreleased || []).map(function (x) { return x.name; })).join('、');
+        var specialReleased = tierData.specialReleased || [];
+        var specialReleasedHtml = specialReleased.length
+          ? '<div class="tiny muted" style="margin-top:8px">已实装特殊器材（行为卡，不进 T 表·不编造排名）：' +
+            specialReleased.map(function (x) {
+              var capTxt = x.actualMaxQuality
+                ? (' · 实际可获：' + esc(x.actualMaxQuality) + (x.actualMaxQuality === '金' ? '（红档当前不可得·用户实机口径）' : '（红档需满星·用户实机口径）'))
+                : '';
+              return esc(x.name) + (x.skills && x.skills.length ? '（' + esc(x.skills.join('、')) + '）' : '') + capTxt;
+            }).join('、') +
+            ' —— 2026-11-12 res20 配置侧实装；玩家可获得性待验证</div>'
+          : '';
         html +=
           '<div class="card card--pad" id="bt-tiers-card">' +
           '<div class="card-head"><div>' +
@@ -436,6 +447,7 @@
           '</div>' +
           (tierTablesHtml || '<div class="player-missing">该角色×位置暂无 T 表数据。</div>') +
           (unreleasedNames ? '<div class="tiny muted" style="margin-top:8px">未时装（不参与推荐）：' + esc(unreleasedNames) + '</div>' : '') +
+          specialReleasedHtml +
           '<div class="tiny muted" style="margin-top:4px">T0 里包含当前规则推出的完整配置（核心输出/位移调控/持续增益/支援口哨，适配时含战术位）；缺 T0 器材可按同档位/下一档平替。技能名悬停可见；desc 占位的 31xxx 模板技能只按动作名归类，不编造效果数值。</div>' +
           '</div>';
         return html;
@@ -604,12 +616,15 @@
             posBlocks + '</details>';
         }).join('');
         var unreleased = (t.unreleased || []).map(function (e) { return e.name; }).join('、') || '—';
+        var specialReleasedNames = (t.specialReleased || []).map(function (e) { return e.name; }).join('、');
         return '<details class="card card--pad" id="bt-tiers"><summary class="strong" style="cursor:pointer">' +
           'g) 器材 T 表（按角色展开）<span class="fold-hint">' + t.characters.length + ' 角色 · 每格 T0→T4 · 点角色名展开</span></summary>' +
           '<div class="tiny muted" style="margin:8px 0">' +
           '每角色 × 位置 × 定位给出完整 T 表：<b>T0 最推荐 → T4 最不推荐</b>，覆盖全部已实装器材；按自己已有器材从 T0 往下取。' +
           '支援口哨固定 T0（养成收益极大）；双定位 3 人（希雅/白神/野上）每个位置有 3 张表（两个定位 + 均衡）。' +
-          '<br>未时装（不参与推荐）：' + esc(unreleased) + '。悬停器材名可看技能名。</div>' +
+          '<br>未时装（不参与推荐）：' + esc(unreleased) + '。' +
+          (specialReleasedNames ? '<br>已实装特殊器材（行为卡，不进 T 表）：' + esc(specialReleasedNames) + '（2026-11-12 res20 配置侧实装；玩家可获得性待验证）' : '') +
+          '悬停器材名可看技能名。</div>' +
           rows + '</details>';
       }
 

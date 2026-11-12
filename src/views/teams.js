@@ -704,7 +704,41 @@
           (w.memberCount > 1 ? '（' + esc(w.sameTypeMembers.join('、')) + '）' : '') + '</div></div>' +
           '<span class="badge ' + confClass + '">' + esc(w.confidenceLabel) + '</span></div>' +
           '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">🎯</span><span><strong>大成功条件：</strong>' + esc(w.rule) + '</span></div>' +
+          '<div class="notice notice--info" style="margin-top:6px"><span class="notice-ico">🎫</span><span class="small"><strong>触发条件：</strong>养成队伍是<strong>四拖一</strong>：4 名陪练凑流派（吃训练天赋）+ 1 名主练，<strong>被拖的正是主练</strong>，也是最终拿去用的角色。心愿事件只跟<strong>主练</strong>触发；陪练不触发自己的心愿。</span></div>' +
+          (function () {
+            var W = wishData();
+            var common = W && W.common;
+            if (!common) return '';
+            var rows = '';
+            if (common.allWishPerfect) {
+              rows += '<div class="notice notice--ok" style="margin-top:6px"><span class="notice-ico">🎁</span><span class="small"><strong>完美奖励（通用）：</strong>' + esc(common.allWishPerfect.rule) + '</span></div>';
+            }
+            if (common.wishFixed) {
+              rows += '<div class="notice notice--info" style="margin-top:6px"><span class="notice-ico">🔒</span><span class="small"><strong>心愿固定：</strong>' + esc(common.wishFixed.rule) + '</span></div>';
+            }
+            return rows;
+          })() +
           (w.evidence ? '<div class="small muted" style="margin-top:6px">依据：' + esc(w.evidence) + '</div>' : '') +
+          (function () {
+            var bd = w.benefitDetail;
+            if (!bd) return '';
+            var rows = '';
+            if (bd.trigger) rows += '<div class="small" style="margin-top:6px"><strong>触发：</strong>' + esc(bd.trigger) + '</div>';
+            if (bd.summary) rows += '<div class="small" style="margin-top:4px"><strong>机制：</strong>' + esc(bd.summary) + '</div>';
+            if (bd.directReward) rows += '<div class="small" style="margin-top:4px"><strong>大成功直接收益：</strong>' + esc(bd.directReward) + '</div>';
+            if (bd.byproducts) rows += '<div class="small" style="margin-top:4px"><strong>副产物：</strong>' + esc(bd.byproducts) + '</div>';
+            if (bd.transfer) rows += '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">🔁</span><span class="small"><strong>跨体系适配判断：</strong>' + esc(bd.transfer) + '</span></div>';
+            if (bd.adaptation) {
+              rows += '<div class="small muted" style="margin-top:4px">适配：' + Object.keys(bd.adaptation).map(function (k) {
+                var label = { shop: '商店流', gacha: '扭蛋流', training: '训练流', asMain: '当主练（被拖）', asDragged: '当陪练（不触发）' }[k] || k;
+                return esc(label) + ' ' + esc(bd.adaptation[k]);
+              }).join(' · ') + '</div>';
+            }
+            if (bd.confidence) rows += '<div class="tiny muted" style="margin-top:2px">判断依据：' + esc(bd.confidence) + '</div>';
+            return rows;
+          })() +
+
+          '<div class="small muted" style="margin-top:6px"><strong>判断口径：</strong>心愿收益是主练的「小幅修正项」——直接属性=通用增强；副产物/属性方向可能让某个非最优流派的机会成本略低，但<strong>不会改变角色的最优定位</strong>，也不是“要去别的队伍养成”的理由。</div>' +
           '<div class="small muted" style="margin-top:4px">口径：用户实机实测 = 客户端实测证据（完全可信）；推测 = 基本可信（仅心愿这一项）。</div>' +
           '</div>';
       }
@@ -1210,20 +1244,19 @@
           '<span class="badge badge--info">社区 + 部分实测</span></div>' +
           '<div class="table-wrap"><table class="table"><thead><tr><th>流派</th><th>最优四拖一（核心四人 / 踢谁 / 替换位）</th></tr></thead><tbody>' +
           cell('扭蛋流', '<strong>羽濑川</strong>（再买一次 期望2.04颗）+ <strong>千圣</strong>（+30%）+ <strong>野上</strong>（周五出行+22钱+首轮增强｜<strong>质变核心</strong>）+ <strong>卧云</strong>（40%增强）｜<strong>踢：先斗</strong>（44%×1.3 期望最低）｜替换位：经济/发钱件') +
-          cell('训练流', '被拖者：<strong>白神</strong>（免费道具：主属性/精力/零花钱）｜支持四：<strong>希雅</strong>（虚空人 +1~2、每人+5%训练加成｜第一核心）+<strong>望月</strong>（表情基础+8%/人｜保底）+<strong>真崎</strong>（一致乘区+0.25）+<strong>闪堂或藤松</strong>（闪堂=升档/上限 +130%；藤松=训练加成/稳定 +111%）｜替代：龙宫寺（望月下位）/佐久间（开荒）｜⚠️百目鬼未实装') +
+          cell('训练流', '被拖者：<strong>白神</strong>（免费道具：主属性/精力/零花钱）｜支持四（<strong>2026-11-12 定稿</strong>）：<strong>希雅</strong>（虚空人 +1~2、每人+5%训练加成｜第一核心）+<strong>望月</strong>（表情基础+8%/人｜保底）+<strong>闪堂</strong>（表情一致概率｜上限件）+<strong>百目鬼</strong>（<strong>周末多一天训练</strong>｜结构件）｜替代：佐久间（期望件/稳定）/藤松（精力稳定）/龙宫寺（望月下位）/真崎（上限件）') +
           cell('商店流', '<strong>羽田</strong>（道具升级/品质）+ <strong>降旗</strong> + <strong>早濑</strong>（商品数量）+ <strong>经济位</strong>（满配：野上 22钱+多1天打工；替代：和泉 每周零花钱 / 名雪 商品-10%过渡）｜<strong>白神（"财神"）=通用商店位，不进优势核心</strong>') +
           cell('小游戏流', '<strong>野上</strong>（+1出行＝多玩一天小游戏，质变核心）+ <strong>稻叶</strong>（小游戏增益）+ <strong>林原</strong>（小游戏奖励）+ <strong>远野</strong>（带加成选项）｜经济替换位：和泉（每周零花钱）；减价：皆川') +
           '</tbody></table></div>' +
-          '<div class="small muted" style="margin-top:6px">昵称对照：白神 时久＝"财神"；和泉 香织＝"合权"；百目鬼 剑＝"百木鬼"（未实装）。</div>' +
+          '<div class="small muted" style="margin-top:6px">昵称对照：白神 时久＝"财神"；和泉 香织＝"合权"；百目鬼 剑＝"百木鬼"（1.0.21 已实装）。</div>' +
           '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">🧪</span><span>' +
-          '<strong>训练流争议：佐久间 vs 闪堂电</strong>——佐久间 +3/+2（40%）进入括号内，吃训练加成/表情/暴击放大（≈+10.8 主属性/次，★★ 再 +3% 乘区），相当于"金色主属性增幅扭蛋"，<strong>开荒期强</strong>；' +
-          '闪堂提高表情一致概率 + 一致时升档（哭→微笑、微笑→大笑），是<strong>乘区类、后期随基础值放大</strong>。' +
-          '按 6 人、q=30% 估算，闪堂期望提升约 +17%~+33%（取决于天赋 Δq）；持平点 S≈40（+30%）~155（+10%）——<strong>长远闪堂更优</strong>，具体以公测实测天赋数值定。' +
+          '<strong>训练流：期望件 vs 上限件（2026-11-12 实测修正）</strong>——佐久间 +3/+2（40%）进括号吃倍率，按实测训练基础值（平时主属性基础≈12.3、最终值≈30~40）折算 <strong>+27~36%</strong>，稳定不吃随机（<strong>期望件</strong>）；真崎一致倍率+0.25 期望仅 +5~10%（<strong>上限件</strong>）；闪堂一致概率 +26~32% 波动、上限 +35~40%（<strong>上限件</strong>）。旧攻略"佐久间后期稀释"基于 S=100/155 假设，实际训练值到不了该分水岭——<strong>期望口径佐久间 &gt; 真崎</strong>。<br>' +
+          '定稿：闪堂（上限件）+百目鬼（结构件）占核心；佐久间=期望件备胎第一顺位；真崎=上限件备胎（需一致生态+闪堂配套）。' +
           '</span></div>' +
           '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">⚡</span><span>' +
           '<strong>通用原理：+1 行动次数 = 质变核心（优先于倍率）</strong><br>' +
           '非训练流（扭蛋/商店/小游戏）属性与钱都靠出行 → <strong>野上（每个周五可出行）是所有非训练流的绝对核心</strong>；小游戏流即使不打工，多一天 = 多玩一天小游戏。<br>' +
-          '训练流同理 → <strong>百目鬼（每个周六可训练）是训练流"质变核心"——但为内测数据、公测尚未实装</strong>（以公测实装为准）。判定：先锁「+1 行动」核心，再锁 2~3 个增益件，最后 1 位补经济/减价/次数件。' +
+          '训练流 → <strong>百目鬼</strong>（1.0.21 已实装，卡池 11-12 10:00 开启）：<strong>周六/周日任选一天训练 = 全队 7 周多 7 次训练日（+22%）</strong>；二星可选周日 = 周末行动选择权（详见下方「百目鬼训练流循环」卡）。判定：先锁「+1 行动」核心，再锁 2~3 个增益件，最后 1 位补经济/减价/次数件。' +
           '</span></div>' +
           '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">💰</span><span>' +
           '<strong>商店流经济位：野上 > 名雪（满配结论）</strong><br>' +
@@ -1238,6 +1271,18 @@
           '→ 训练流最佳被拖者＝白神（资源型通用件）；非训练流的被拖者可以随便选目标角色，但天赋最好也能吃到该流派的钱/出行。' +
           '</span></div>' +
           '<div class="small muted">⚠️ 训练/商店/小游戏三套核心为社区配对+部分天赋名推断（客户端天赋表解析有损）；财神、合权等不在 38 人图鉴库的角色待补「队伍信息→角色天赋」截图。</div>' +
+          '</div>' +
+          '<div class="card card--pad" id="hyakumekki-loop" style="margin-top:16px">' +
+          '<div class="card-head"><div><div class="card-title"><span class="ico">🔁</span>百目鬼训练流循环（和常规训练流逻辑相反）</div>' +
+          '<div class="card-sub">用户实机 2026-11-12（≥6-7 角色样本）；常规训练流＝花钱换属性，百目鬼＝留钱买精力药换行动</div></div>' +
+          '<span class="badge badge--ok">实测口径</span></div>' +
+          '<div class="small" style="margin-top:6px;white-space:pre-wrap;line-height:1.7">' +
+          '【二星质变】白板周六训练锁死；二星可周六/周日任选 → 周六先看扭蛋：有货就买、周日训练；没货就周六训练、周日休息/补买。＝花钱买「周末行动选择权」，把「周六刷好货却买不到」的负收益优化掉。\n\n' +
+          '【资金流反转】常规训练流：零花钱要「尽量花掉」（每周固定买 1~2 次扭蛋/道具，否则只能买商店低价值货）；百目鬼：零花钱是「战略储备」——优先买商店精力药（精力药＝把休息日换成训练日的杠杆），钱不够时宁可休息省钱。\n\n' +
+          '【前两周攒钱】前 1~2 周基本只能攒钱（刷不出好货就休息省着），运气不好也没办法；第 3 周后钱溢出，可稳定每周买一次训练向 buff 扭蛋（训练主属性+3/专注等级+3）。\n\n' +
+          '【变体·野上+百目鬼】野上周五可出行+扭蛋加成 → 周中多一个看扭蛋窗口（新位置只能扭蛋出）。上限低于纯百目鬼队，但练新属性/新位置角色更顺；纯练已有位置/冲总评仍用希雅+望月+闪堂+百目鬼。' +
+          '</div>' +
+          '<div class="small muted" style="margin-top:8px">待验证：关键扭蛋（笔记继承/新位置）刷新概率、商店精力道具价格/回复量、第 3 周后资金溢出稳定性、野上组合实际属性产出。</div>' +
           '</div>'
         );
       }
@@ -1260,7 +1305,7 @@
           cell2('扭蛋流', '<strong>羽濑川 / 千圣 / 野上 / 卧云</strong>｜替代：羽濑川→春澄永远（同名不叠加）、卧云→先斗；千圣/野上无替代') +
           cell2('商店流', '<strong>羽田 / 降旗 / 早濑 / 野上</strong>（经济位）｜替代：羽田→清水万里（同名不叠加）、野上→和泉（每周零花钱）/名雪（−10%）；白神=通用商店位可作经济/弹性替代') +
           cell2('小游戏流', '<strong>野上 / 稻叶 / 林原 / 远野</strong>｜替代：和泉（经济位）、皆川（减价）；社区版核心样本少') +
-          cell2('训练流', '<strong>希雅 / 望月 / 真崎 / 闪堂 或 藤松</strong>（希雅=虚空人+1~2、每人+5%训练加成；望月=表情+8%/人；真崎=一致乘区+0.25；闪堂=升档，藤松=训练加成）｜替代：龙宫寺（望月+4%下位）、佐久间（开荒flat）；百目鬼（未实装）') +
+          cell2('训练流', '<strong>希雅 / 望月 / 闪堂 / 百目鬼</strong>（<strong>2026-11-12 定稿</strong>：希雅=虚空人+1~2、每人+5%训练加成；望月=表情+8%/人；闪堂=表情一致概率（上限件）；百目鬼=周末多一天训练，7 周 +7 次）｜替代：佐久间（期望件 +27~36%）/藤松（精力稳定）/龙宫寺（望月下位）/真崎（上限件）') +
           '</tbody></table></div>' +
 
           '<div class="team-sub-label" style="margin-top:12px">② 四拖一的「一」：主练推荐度排行</div>' +
@@ -1275,7 +1320,7 @@
           cell4('望月 / 藤松 / 佐久间 / 闪堂 / 真崎 / 龙宫寺', '训练流', '—', '非训练流白板') +
           cell4('羽田 / 降旗 / 早濑 / 清水', '商店流', '—', '非商店流') +
           cell4('稻叶 / 林原 / 远野 / 皆川', '小游戏流', '—', '非小游戏流') +
-          cell4('百目鬼', '训练流（⚠️未实装）', '—', '—') +
+          cell4('百目鬼', '训练流（已实装）', '—', '—') +
           '</tbody></table></div>' +
 
           '<div class="small muted" style="margin-top:8px">推荐度依据 = 主练天赋能否在目标流派产生价值（越核心越靠前）；当原配流派养成不足（天赋没点全）时，按"次选"换队可能更强（如白神在商店流未点满时跟训练流四拖一）。</div>' +
@@ -1287,7 +1332,7 @@
           '闪堂：触发表情一致时，哭脸 30%、平常脸 60% 概率升级为笑脸；<br>' +
           '望月：精力≥45~60 时全部表情基础 Bonus +4%，训练开始额外 +30 随机属性；<br>' +
           '希雅：增加队友数量上限 +3，且每个队友额外 +5% 训练加成；<br>' +
-          '百目鬼：每个周六均可训练，周六额外 20%~45% 训练加成，精力消耗 -80%（内测文本，公测未实装）。<br>' +
+          '百目鬼（res20 实装版）：周六加成（主副属性 +3、15% 训练加成）→ 灵活加训（<strong>周六/周日任选一天训练</strong>、主副属性 +5、表情 bonus +5%）→ 成长率（投射/弹跳成长率 +10%、作为主力时新境界阈值 +50）。<br>' +
           '<strong>按 3/4/5 人核算（全微笑一致，6人稀有；希雅加成下 3~4 人常见）：</strong>' +
           '希雅 +40%/+40%/+42%；望月 +18%/+23%/+27%；闪堂 +14%/+17%/+20%；真崎 +14%/+13%/+11%；龙宫寺 +9%/+11%/+13%；' +
           '组合 希雅+望月+真崎 = +95%~105%；+藤松 = +114%~124%；<strong>+闪堂 = +125%~142%（最高）</strong>。' +
@@ -1326,12 +1371,12 @@
           ]
         },
         train: {
-          name: '训练流', economy: '精力（训练日消耗；训练流经济位=精力件）', coreRule: '第一核心：希雅；保底核心：望月；乘区：真崎；升档：闪堂（或藤松补训练加成）',
+          name: '训练流', economy: '精力（训练日消耗；训练流经济位=精力件）', coreRule: '第一核心：希雅；保底核心：望月；上限件：闪堂；结构件：百目鬼（周末多一天训练）',
           supports: [
             { n: '希雅·奥黛拉', role: '第一核心（虚空人 +1~2、每人 +5% 训练加成）', sub: '无（唯一，不可替代）' },
             { n: '望月 透', role: '保底核心（表情基础 +8%/人）', sub: '龙宫寺 心叶（+4%/人，下位）' },
-            { n: '真崎 辉世', role: '乘区（一致乘区 +0.25，3~4 人场景更值）', sub: '无直接下位（可换藤松/龙宫寺补稳定）' },
-            { n: '闪堂 电', role: '升档（微笑 60%→大笑；+一致概率）', sub: '藤松 玖怜（训练加成 +5~15%/精力，稳定位）/佐久间 雨乃（开荒 flat）' }
+            { n: '闪堂 电', role: '上限件（表情一致概率/升档；+26~32% 波动、上限 +35~40%）', sub: '佐久间 雨乃（期望件 +27~36%，稳定；表情不可控时替代）' },
+            { n: '百目鬼 剑', role: '结构件（周六/周日任选一天训练 = 全队 7 周 +7 训练日，约 +22%）', sub: '藤松 玖怜（精力稳定 +5~15% 训练加成）/真崎 辉世（上限件，需一致生态）' }
           ]
         }
       };
@@ -1363,7 +1408,7 @@
         '林原 树里': { list: ['训练流（周末闲钱玩小游戏吃加成）', '小游戏流（临时不推荐）'], avoid: '扭蛋/商店（≈白板）', core: ['小游戏流'], reason: '本人位于小游戏流四拖一内，但小游戏流上限低 → 优先跟训练流队' },
         '远野 桐': { list: ['训练流（周末闲钱玩小游戏吃加成）', '小游戏流（临时不推荐）'], avoid: '扭蛋/商店（≈白板）', core: ['小游戏流'], reason: '本人位于小游戏流四拖一内，但小游戏流上限低 → 优先跟训练流队' },
         '皆川 式': { list: ['训练流（经济/减价位）', '小游戏流（临时不推荐）'], avoid: '扭蛋/商店', core: ['小游戏流'], reason: '本人是小游戏流减价件；小游戏流上限低 → 优先跟训练流队当经济/减价位' },
-        '百目鬼 剑': { list: ['训练流（⚠️未实装）'], avoid: '—', core: ['训练流'], reason: '上线后是训练流"+1 训练日"质变核心（内测数据）' }
+        '百目鬼 剑': { list: ['训练流'], avoid: '—', core: ['训练流'], reason: '训练流"+1 训练日"质变核心（1.0.21 已实装，2026-11-12 卡池开启）' }
       };;
 
       function pairingPanelHtml() {

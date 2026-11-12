@@ -343,6 +343,16 @@
           '</div>' +
           (item.descText ? '<div class="small" style="margin-top:8px">描述：' + esc(item.descText) + '</div>'
             : '<div class="small muted" style="margin-top:8px">描述文案：客户端未提供（待补）。</div>') +
+          (item.typeText ? '<div class="small" style="margin-top:6px">训练效果（客户端文本）：' + esc(item.typeText) + '</div>' : '') +
+          (item.skills && item.skills.length ? '<div class="small" style="margin-top:6px">专属技能：' + esc(item.skills.join('；')) + '</div>' : '') +
+          (item.owner ? '<div class="small" style="margin-top:6px">专武归属：' + esc(item.owner) + '</div>' : '') +
+          (item.releaseStatus ? '<div class="small" style="margin-top:6px">实装状态：<strong>' + esc(item.releaseStatus) + '</strong>' +
+            (item.releaseNote ? '（' + esc(item.releaseNote) + '）' : '') + '</div>' : '') +
+          (item.actualMaxQuality ? '<div class="small" style="margin-top:6px">实际可获得上限：<strong>' + esc(item.actualMaxQuality) + '</strong>' +
+            (item.qualityCapNote ? ' · ' + esc(item.qualityCapNote) : '') + '</div>' : '') +
+          (item.redUnlockNote ? '<div class="small" style="margin-top:4px">红档可获得性：' + esc(item.redUnlockNote) +
+            (item.obtainabilitySource ? '（' + esc(item.obtainabilitySource) + '）' : '') + '</div>' : '') +
+          (item.sourceDetail ? '<div class="tiny muted" style="margin-top:4px">数据来源：' + esc(item.sourceDetail) + '</div>' : '') +
           '<div class="notice notice--warn" style="margin-top:10px"><span class="notice-ico">⚠️</span><span>' +
           '<strong>口径：</strong>名称/属性标签为客户端文本确证；<strong>属性具体数值未解</strong>、' +
           '<strong>专属技能/词条归属未解</strong>；品质为分组推断，请勿当作硬数值。</span></div>' +

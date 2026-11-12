@@ -226,6 +226,28 @@
             '</div>';
         }).join('') + '</div>';
       }
+      function charNotesHtml(character) {
+        var CN = root.BBTCharNotes;
+        if (!CN || !CN.notes) return '';
+        var list = CN.notes[character.name];
+        if (!list || !list.length) return '';
+        var meta = CN.meta || {};
+        var items = list.map(function (n) {
+          var head = '<div class="char-note-head">' +
+            '<span class="char-note-author">' + esc(n.author || meta.author || '') + '</span>' +
+            (n.date ? '<span class="char-note-date">' + esc(n.date) + '</span>' : '') +
+            (n.tag ? '<span class="badge badge--neutral">' + esc(n.tag) + '</span>' : '') +
+            '</div>';
+          var basis = n.basis ? '<div class="char-note-basis small muted">依据：' + esc(n.basis) + '</div>' : '';
+          return '<div class="char-note">' + head + '<div class="char-note-text">' + esc(n.text) + '</div>' + basis + '</div>';
+        }).join('');
+        return '<div class="card card--pad" id="player-char-notes">' +
+          '<div class="card-head"><div><div class="card-title"><span class="ico">💬</span>评论区</div>' +
+          '<div class="card-sub">' + esc(meta.source || '讨论记录') + '</div></div>' +
+          '<span class="badge badge--neutral">' + esc(meta.author || '') + '</span></div>' +
+          items + '</div>';
+      }
+
       function listHtml() {
         var list = filteredCharacters();
         if (!list.length) {
@@ -463,6 +485,7 @@
           '<span>学校 ' + esc(character.school || '—') + '</span>' +
           (character.heightCm != null ? '<span>身高 ' + esc(character.heightCm) + 'cm</span>' : '') +
           (character.weightKg != null ? '<span>体重 ' + esc(character.weightKg) + 'kg</span>' : '') +
+          (character.spanCm != null ? '<span>臂展 ' + esc(character.spanCm) + 'cm</span>' : '') +
           '<span>位置排名 ' + esc(rank) + '</span>' +
           '</div>' +
           summary +
@@ -611,6 +634,7 @@
           growth +
           '<div class="grid grid--2" style="align-items:start">' + defense + positionCards + '</div>' +
           '<div class="grid grid--2" style="align-items:start">' + skills + '</div>' +
+          charNotesHtml(character) +
           notesEditorHtml(character) +
           '</div>'
         );

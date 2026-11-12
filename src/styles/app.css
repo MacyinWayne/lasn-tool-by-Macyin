@@ -4090,3 +4090,36 @@
 }
 
 
+
+/* ============================ 球员页 · 评论区 ============================ */
+.char-note {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm, 10px);
+  padding: 10px 12px;
+  margin-top: 8px;
+  background: var(--surface-2);
+}
+.char-note-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.char-note-author {
+  font-weight: 600;
+}
+.char-note-date {
+  color: var(--ink-3);
+  font-size: 12px;
+}
+.char-note-text {
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.char-note-basis {
+  margin-top: 4px;
+  font-size: 12px;
+}
