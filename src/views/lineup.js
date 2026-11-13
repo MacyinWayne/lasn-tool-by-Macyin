@@ -511,6 +511,19 @@
       '<span class="badge badge--client">下位替代</span></div>' +
       (p.strategyNote ? '<div class="tiny muted" style="margin:6px 0">' + esc(p.strategyNote) + '</div>' : '') +
       '<div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:600px"><thead><tr><th>职责</th><th>推荐</th><th>下位替代</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      (function () {
+        var ul = p.userLineup;
+        if (!ul || !ul.slots) return '';
+        return '<div style="margin-top:8px;padding:8px;border:1px dashed #b9c4d0;border-radius:6px">' +
+          '<div class="small"><strong>🎯 用户实机配置</strong>' + (ul.source ? '<span class="tiny muted">（' + esc(ul.source) + '）</span>' : '') + '</div>' +
+          '<div class="table-wrap" style="margin-top:4px"><table class="table" style="min-width:520px"><thead><tr><th>位置</th><th>角色</th><th>器材技能</th><th>战术</th></tr></thead><tbody>' +
+          (ul.slots || []).map(function (s) {
+            return '<tr><td><strong>' + esc(s.pos) + '</strong></td><td>' + esc(s.name) + '</td><td class="small">' + esc(s.equip || '—') + '</td><td class="small">' + esc(s.tactic || '—') + '</td></tr>';
+          }).join('') +
+          '</tbody></table></div>' +
+          (ul.note ? '<div class="tiny muted" style="margin-top:4px">' + esc(ul.note) + '</div>' : '') +
+          '</div>';
+      })() +
       '<div style="margin-top:8px"><strong class="small">推荐器材（不用凑 5 件，按你的器材挑）：</strong><div style="margin-top:4px">' + (eqs || '<span class="muted small">—</span>') + '</div></div>' +
       '</div>';
   }
