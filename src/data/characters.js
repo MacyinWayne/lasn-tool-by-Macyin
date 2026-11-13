@@ -1,7 +1,7 @@
 /*!
  * data/characters.js —— 自动生成，请勿手改。
  * 生成脚本：tool/scripts/build-data.mjs
- * 生成时间：2026-11-12 13:02
+ * 生成时间：2026-11-14 07:53
  * 数据模式：T1 结构化数据
  * 数据来源：data/structured/characters.json
  *
@@ -12,7 +12,7 @@
   'use strict';
   var data = {
   "schema": 1,
-  "generatedAt": "2026-11-12 13:02",
+  "generatedAt": "2026-11-14 07:53",
   "count": 38,
   "mode": "structured",
   "source": "data/structured/characters.json",

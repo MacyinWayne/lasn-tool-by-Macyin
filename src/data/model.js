@@ -2,7 +2,7 @@
  * data/model.js —— 自动生成，请勿手改。
  * 生成脚本：tool/scripts/build-model.mjs
  * 数据来源：knowledge/model.json（T3 formula-hunter）
- * 生成时间：2026-11-05T12:17:44.543Z
+ * 生成时间：2026-11-13T23:54:51.121Z
  *
  * file:// 下无法 fetch 本地 JSON，因此模型在构建期固化为全局脚本。
  */
@@ -11,7 +11,7 @@
   var data = {
   "schema": 1,
   "mode": "ready",
-  "generatedAt": "2026-11-05T12:17:44.543Z",
+  "generatedAt": "2026-11-13T23:54:51.121Z",
   "source": "knowledge/model.json",
   "modelVersion": "v3.3",
   "schemaVersion": "1.0.0",
@@ -1059,7 +1059,7 @@
   "training": {
     "formula_spec": {
       "main_gain": "主属性增加 = ( base[主属性] + (训练等级-1)×level_bonus + personnel_bonus + equip_match_bonus ) × (1 + Σ训练加成 + mood_bonus) × (1 + crit_bonus) + flat_bonus",
-      "secondary_gain": "副属性增加 = main_gain × secondary_ratio；主/副属性固定绑定：投射→运控、弹跳→意识、防守→体能、体能→弹跳、运控→防守、意识→体能（用户实机 2026-11-05）；副属性比例观察约 0.33~0.5，待更多样本。",
+      "secondary_gain": "副属性增加 = main_gain × secondary_ratio；主/副属性固定绑定：投射→运控、弹跳→意识、防守→体能、体能→弹跳、运控→防守、意识→体能（寒溟实机 2026-11-05）；副属性比例观察约 0.33~0.5，待更多样本。",
       "display_value": "游戏内点训练显示的数字 = 未计入表情爆发的数值（main_gain + secondary_gain 展示口径待验证）",
       "with_expression": "最终属性增加 = main_gain × (1 + Σ每表情bonus) × (表情不一致=1 / 一致时=一致倍率)",
       "variables": [
@@ -1074,7 +1074,7 @@
         "secondary_ratio",
         "表情系统(见 expression 模块)"
       ],
-      "rng_note": "训练随机数：用户实测同配置重复训练结果每次不同；Player.log 中训练请求 education.cs_train 仅携带 cmd_idx，结果由服务器 sc_train_result_start / sc_refresh_education / sc_train_result_end 下发，日志无 seed/random/暴击 字样 → 判断为服务器端每次独立 roll，客户端无法用种子预演；只能做期望值最优。"
+      "rng_note": "训练随机数：寒溟实测同配置重复训练结果每次不同；Player.log 中训练请求 education.cs_train 仅携带 cmd_idx，结果由服务器 sc_train_result_start / sc_refresh_education / sc_train_result_end 下发，日志无 seed/random/暴击 字样 → 判断为服务器端每次独立 roll，客户端无法用种子预演；只能做期望值最优。"
     },
     "params": {
       "base_normal": {
@@ -1356,9 +1356,9 @@
           }
         ],
         "unit": "映射表",
-        "confidence": "用户实测",
+        "confidence": "寒溟实测",
         "evidence": [
-          "游戏内训练界面预测值（2026-11-05，用户实测）"
+          "游戏内训练界面预测值（2026-11-05，寒溟实测）"
         ],
         "note": "主/副属性固定绑定；此表推翻了此前从客户端 edu_train_conf 字符串解析的旧配对（旧：弹跳→体能、体能→投射、运控→意识、意识→弹跳），以实机为准",
         "supersedes": "old_client_string_parse"
@@ -1369,7 +1369,7 @@
           0.5
         ],
         "unit": "比例",
-        "confidence": "用户实测(少量样本)",
+        "confidence": "寒溟实测(少量样本)",
         "evidence": [
           "训练界面预测值：投射18/运控6=0.33；弹跳13/意识5≈0.38；运控15/防守6=0.4；意识12/体能6=0.5"
         ],
@@ -1378,10 +1378,10 @@
       "rng_mode": {
         "value": "server_authoritative_per_training",
         "unit": "机制",
-        "confidence": "用户实测+日志证据",
+        "confidence": "寒溟实测+日志证据",
         "evidence": [
           "education.cs_train {cmd_idx} 请求；sc_train_result_start/end + sc_refresh_education 下发",
-          "同配置重复训练结果每次不同（用户实机）"
+          "同配置重复训练结果每次不同（寒溟实机）"
         ],
         "note": "训练结果无法通过种子本地复现；最优策略只能按期望值计算"
       }
@@ -1553,7 +1553,7 @@
       "step1": "训练值 = 训练主属性增加（training 模块，不含表情）",
       "step2": "最终 = 训练值 × (1 + Σ每个表情的 bonus) × (表情不一致 ? 1 : 该表情一致倍率)；表情一致人数基础 6（经理1+陪练4+主练1），希雅二星 +1~3 虚空人时可到 9",
       "bonus": "每个表情 bonus = 基础 0.20 + 角色技能加值（望月 +0.08、龙宫寺 +0.04 等）",
-      "per_expression_type": "【用户实测假设】每个参与者按表情类型给基础倍率：大笑 20%、微笑 10%、哭脸 0%；Σ后进 (1+Σ) 乘区；全员同表情时才乘一致倍率（2.5+真崎0.25）。",
+      "per_expression_type": "【寒溟实测假设】每个参与者按表情类型给基础倍率：大笑 20%、微笑 10%、哭脸 0%；Σ后进 (1+Σ) 乘区；全员同表情时才乘一致倍率（2.5+真崎0.25）。",
       "source_note": "公式来源：TapTap「训练流公式逆推，雨乃，危！」（内测实测帖，https://www.taptap.cn/moment/805700735671995246；豌豆荚全文转载 2026-10-16），公测参数可能调整",
       "slots": "表情槽位数 = 参与训练人数（经理 + 陪练 + 主练）；满编 6；希雅二星虚空人 +1~3 → 最多 9。爆发 = (1 + Σ每人(表情基础+技能加成)) × (全员同表情时的一致乘区)。",
       "consistency": "爆发 = (1 + Σ每人(表情基础+技能加成)) ×（全员同表情且n≥2 ? 一致乘区表(n)+角色乘区加成 : 1）。表值：2→1.5、3→1.8、4→2.0、6→2.5；真崎+0.25；5 及 7/8/9 待测。"
@@ -1562,9 +1562,9 @@
       "slots": {
         "value": 6,
         "unit": "个（最多）",
-        "confidence": "用户实测（机制修正）",
+        "confidence": "寒溟实测（机制修正）",
         "evidence": [
-          "用户实测 2026-11-05：非训练队（无虚空人）时，表情一致上限 = 陪练/经理总人数 + 1（主练）；基本都是 2 个表情",
+          "寒溟实测 2026-11-05：非训练队（无虚空人）时，表情一致上限 = 陪练/经理总人数 + 1（主练）；基本都是 2 个表情",
           "之前 6 格来自满编队（经理1+陪练4+主练1）"
         ],
         "note": "表情槽位 = 参与训练的人数（经理 + 陪练 + 主练）；满编 = 6。**不是固定 6**：无人配置只有主练(+经理若有)，单经理=2，单陪练=3，满编=6；希雅二星 +1~3 虚空人 → 最多 9。"
@@ -1576,7 +1576,7 @@
         "evidence": [
           "https://www.taptap.cn/moment/805700735671995246"
         ],
-        "note": "每格基础 bonus 20%（内测公式帖口径，未区分哭脸/微笑/大笑）；用户实测提示哭脸=0%、微笑/大笑各有基础倍率 → 待公测验证后按表情类型细化"
+        "note": "每格基础 bonus 20%（内测公式帖口径，未区分哭脸/微笑/大笑）；寒溟实测提示哭脸=0%、微笑/大笑各有基础倍率 → 待公测验证后按表情类型细化"
       },
       "consistency_multiplier_base": {
         "value": 2.5,
@@ -1721,7 +1721,7 @@
       "slots_max_with_xiya": {
         "value": 9,
         "unit": "格",
-        "confidence": "用户实测",
+        "confidence": "寒溟实测",
         "evidence": [
           "knowledge/表情机制_希雅二星虚空人.md"
         ],
@@ -1730,7 +1730,7 @@
       "xiya_virtual_min": {
         "value": 1,
         "unit": "个",
-        "confidence": "用户实测",
+        "confidence": "寒溟实测",
         "evidence": [
           "knowledge/表情机制_希雅二星虚空人.md"
         ],
@@ -1739,7 +1739,7 @@
       "xiya_virtual_max": {
         "value": 3,
         "unit": "个",
-        "confidence": "用户实测",
+        "confidence": "寒溟实测",
         "evidence": [
           "knowledge/表情机制_希雅二星虚空人.md"
         ],
@@ -1752,7 +1752,7 @@
           "哭脸": 0
         },
         "unit": "比例/人",
-        "confidence": "用户实测（最终确认）",
+        "confidence": "寒溟实测（最终确认）",
         "evidence": [
           "3 大笑 + 1 哭脸 = 160% → 3×20% = 60%",
           "1 大笑 + 1 微笑 = 130% → 20% + 10%",
@@ -1770,7 +1770,7 @@
           "6": 2.5
         },
         "unit": "乘区",
-        "confidence": "用户实测",
+        "confidence": "寒溟实测",
         "evidence": [
           "2人=1.5（150% 两哭脸）",
           "3人=1.8（288% 三大笑 / 234% 三微笑）",
@@ -1788,7 +1788,7 @@
       "consistency_formula": {
         "value": "表值：2→1.5、3→1.8、4→2.0、5→2.2、6→2.5；真崎 +0.25；7/8/9 推算 2.8/3.0/3.2",
         "unit": "乘区",
-        "confidence": "用户实测（2~6人）",
+        "confidence": "寒溟实测（2~6人）",
         "evidence": [
           "150% / 234% / 288% / 360% / 330% / 803% 六个锚点"
         ],
@@ -5476,7 +5476,7 @@
     }
   },
   "calibration": {
-    "philosophy": "所有关键系数做成「可校准参数」；用户输入游戏内实测值后，验证器反解参数并给残差/是否需要补充数据",
+    "philosophy": "所有关键系数做成「可校准参数」；寒溟输入游戏内实测值后，验证器反解参数并给残差/是否需要补充数据",
     "verifier_inputs": [
       {
         "id": "V1",
@@ -5708,7 +5708,7 @@
       "id": "exprSlotCount",
       "value": 6,
       "confidence": "待验证",
-      "source": "T3 model.json：用户实测 2026-11-05：非训练队（无虚空人）时，表情一致上限 = 陪练/经理总人数 + 1（主练）；基本都是 2 个表情",
+      "source": "T3 model.json：寒溟实测 2026-11-05：非训练队（无虚空人）时，表情一致上限 = 陪练/经理总人数 + 1（主练）；基本都是 2 个表情",
       "note": "表情槽位 = 参与训练的人数（经理 + 陪练 + 主练）；满编 = 6。**不是固定 6**：无人配置只有主练(+经理若有)，单经理=2，单陪练=3，满编=6；希雅二星 +1~3 虚空人 → 最多 9。",
       "versions": null,
       "unit": "个（最多）"
@@ -5718,7 +5718,7 @@
       "value": 20,
       "confidence": "实测",
       "source": "T3 model.json：https://www.taptap.cn/moment/805700735671995246",
-      "note": "每格基础 bonus 20%（内测公式帖口径，未区分哭脸/微笑/大笑）；用户实测提示哭脸=0%、微笑/大笑各有基础倍率 → 待公测验证后按表情类型细化",
+      "note": "每格基础 bonus 20%（内测公式帖口径，未区分哭脸/微笑/大笑）；寒溟实测提示哭脸=0%、微笑/大笑各有基础倍率 → 待公测验证后按表情类型细化",
       "versions": null,
       "unit": "比例"
     },

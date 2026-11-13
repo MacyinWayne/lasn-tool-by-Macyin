@@ -1,7 +1,7 @@
 /*!
  * views/teams.js —— 养成配队（tab id: teams，排在 overview 之后）
  *
- * 结构（用户确认 2026-11-05）：
+ * 结构（寒溟确认 2026-11-05）：
  *   - 场景：冲总评分 / 竞技场 / 全国大赛 / 杯赛 / 圣山挑战赛（蓝/绿/红/紫）
  *   - 训练方向：攻框（含突破）/ 三分（含中投）/ 防守（抢断/盖帽）/ 组织（战术/续航）/ 篮板（特化）
  *   - 队伍：主练 ×1、陪练 ×4、经理 ×1（锁定）、器材 ≤5、笔记 ≤2
@@ -83,7 +83,7 @@
     subtitle:
       '按「场景 × 训练方向」规划主练/陪练/经理/器材/笔记，查看角色功能定位与适配度；选中主练后给出「角色养成配法」：方向推荐、位置约束/补丁技能、器材固定技能与配法笔记。',
     dataNote:
-      '本页来源：场景/训练方向=用户确认（2026-11-05）· 圣山角色=用户确认 2026-11-09（蓝白神/红希雅/绿野上/紫出羽）· 适配度/养成配法=知识库「比赛机制_攻防回合.md」§6.2 + claims + 角色数据（启发式推断）· 器材库/笔记库=数据待补（占位可手动输入）',
+      '本页来源：场景/训练方向=寒溟确认（2026-11-05）· 圣山角色=寒溟确认 2026-11-09（蓝白神/红希雅/绿野上/紫出羽）· 适配度/养成配法=知识库「比赛机制_攻防回合.md」§6.2 + claims + 角色数据（启发式推断）· 器材库/笔记库=数据待补（占位可手动输入）',
     mount: function (el, ctx) {
       var store = ctx.store;
       var data = ctx.data || (BBT.gameData ? { characters: BBT.gameData.characters() } : { characters: [] });
@@ -739,7 +739,7 @@
           })() +
 
           '<div class="small muted" style="margin-top:6px"><strong>判断口径：</strong>心愿收益是主练的「小幅修正项」——直接属性=通用增强；副产物/属性方向可能让某个非最优流派的机会成本略低，但<strong>不会改变角色的最优定位</strong>，也不是“要去别的队伍养成”的理由。</div>' +
-          '<div class="small muted" style="margin-top:4px">口径：用户实机实测 = 客户端实测证据（完全可信）；推测 = 基本可信（仅心愿这一项）。</div>' +
+          '<div class="small muted" style="margin-top:4px">口径：寒溟实机实测 = 客户端实测证据（完全可信）；推测 = 基本可信（仅心愿这一项）。</div>' +
           '</div>';
       }
 
@@ -1274,7 +1274,7 @@
           '</div>' +
           '<div class="card card--pad" id="hyakumekki-loop" style="margin-top:16px">' +
           '<div class="card-head"><div><div class="card-title"><span class="ico">🔁</span>百目鬼训练流循环（和常规训练流逻辑相反）</div>' +
-          '<div class="card-sub">用户实机 2026-11-12（≥6-7 角色样本）；常规训练流＝花钱换属性，百目鬼＝留钱买精力药换行动</div></div>' +
+          '<div class="card-sub">寒溟实机 2026-11-12（≥6-7 角色样本）；常规训练流＝花钱换属性，百目鬼＝留钱买精力药换行动</div></div>' +
           '<span class="badge badge--ok">实测口径</span></div>' +
           '<div class="small" style="margin-top:6px;white-space:pre-wrap;line-height:1.7">' +
           '【二星质变】白板周六训练锁死；二星可周六/周日任选 → 周六先看扭蛋：有货就买、周日训练；没货就周六训练、周日休息/补买。＝花钱买「周末行动选择权」，把「周六刷好货却买不到」的负收益优化掉。\n\n' +
@@ -1581,7 +1581,7 @@
           '<div class="team-toolbar card card--pad" id="team-toolbar">' +
           '<div class="team-toolbar-row">' +
           '<div class="field"><label class="field-label" for="team-scene"><span class="label-text">场景</span>' +
-          '<span class="badge badge--info">用户确认</span></label>' +
+          '<span class="badge badge--info">寒溟确认</span></label>' +
           '<select class="select" id="team-scene">' +
           scenarios.map(function (s) {
             return '<option value="' + esc(s.id) + '"' + (s.id === state.sceneId ? ' selected' : '') + '>' + esc(s.name) + '</option>';

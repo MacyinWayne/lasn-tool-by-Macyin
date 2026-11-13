@@ -1,7 +1,7 @@
 /** src/data/guild-war.js —— 【自动生成，请勿手改】实战配队 · 协会赛数据（规则原文 + 19 关敌人 + 帮助/奖励） */
 window.BBTGuildWarData = {
  "schema": "guild-war-v1",
- "generatedAt": "2026-11-13 10:29",
+ "generatedAt": "2026-11-14 07:53",
  "source": {
   "client": "res21 / 1.0.23（data/client/reverse_20261113）",
   "files": [
@@ -76,13 +76,13 @@ window.BBTGuildWarData = {
      "106": 2133
     },
     "sum": 12500,
-    "note": "困难档为用户实机截图原值（总和=总评 12500）；普通/中等/终局档按「已知 3 项比例 + 总评」补齐（推断）"
+    "note": "困难档为寒溟实机截图原值（总和=总评 12500）；普通/中等/终局档按「已知 3 项比例 + 总评」补齐（推断）"
    },
    "note": "主/副/其余 = 各难度档三维值；主/副属性由角色位置（profile）决定：和泉 PG 主运控/副意识、藤松 SG 主防守/副投射、佐久间 PF 主弹跳/副体能、洺瑶 C 主防守/副弹跳；米歇尔为 BOSS 特殊分布",
    "verification": {
     "finalRuleVerified": true,
     "rule": "终局挑战 = 困难档全六维 × propRank/8000",
-    "detail": "终局和泉/藤松的实机六维（2026-11-13 用户截图）与「困难档 × propRank/8000」推导值逐项一致（和泉 1295/1295/1295/1295/2220/1850、藤松 1850/1295/2220/1295/1295/1295）→ 规则验证通过",
+    "detail": "终局和泉/藤松的实机六维（2026-11-13 寒溟截图）与「困难档 × propRank/8000」推导值逐项一致（和泉 1295/1295/1295/1295/2220/1850、藤松 1850/1295/2220/1295/1295/1295）→ 规则验证通过",
     "sumNote": "终局 5 人六维总和均 = propRank 9250（含 出羽/希雅 实机值）",
     "legendaryNote": "出羽十明/希雅·奥黛拉 为「传奇圣山 SS+」特殊分布（实机截图原值，非主/副/其余规则生成）",
     "bossNote": "米歇尔终局档本次未截图，维持推断（困难档实机 × 14500/12500 按已知 3 项+总评补齐）"
@@ -100,15 +100,15 @@ window.BBTGuildWarData = {
     "19"
    ],
    "finalTeamFull": true,
-   "note": "决赛场 16/17/18 共 15 人 + 终局挑战 19 共 5 人 = 20 人六维完整（其中终局出羽/希雅为 2026-11-13 用户实机截图；和泉/藤松实机值与此前推导逐项一致；米歇尔终局未截图→推断）；分站赛 match1-15 共 75 人 104-106 为游戏内运行时生成（规则未解出，不编数值）；无待实机项。",
+   "note": "决赛场 16/17/18 共 15 人 + 终局挑战 19 共 5 人 = 20 人六维完整（其中终局出羽/希雅为 2026-11-13 寒溟实机截图；和泉/藤松实机值与此前推导逐项一致；米歇尔终局未截图→推断）；分站赛 match1-15 共 75 人 104-106 为游戏内运行时生成（规则未解出，不编数值）；无待实机项。",
    "stationRuntime": 75
   },
   "pending": [],
   "source": {
-   "screenshot": "用户实机截图（困难 BOSS 战 5 人全六维）2026-11-13",
+   "screenshot": "寒溟实机截图（困难 BOSS 战 5 人全六维）2026-11-13",
    "client": "res21 客户端配置静态 3 项（guild_war_matches.json：101/102/103）",
    "spec": "logs/_gw_full_attrs_spec.json（Lead 推导规格）",
-   "screenshotFinal": "用户实机截图 2026-11-13（终局挑战 match19：出羽十明/希雅·奥黛拉/和泉香织/藤松玖怜 4 张注册球员面板）"
+   "screenshotFinal": "寒溟实机截图 2026-11-13（终局挑战 match19：出羽十明/希雅·奥黛拉/和泉香织/藤松玖怜 4 张注册球员面板）"
   },
   "notes": [
    "实机截图值照录（米歇尔困难档 6 维）；其余推断值按截图规则生成并标「推断」。",
@@ -116,7 +116,7 @@ window.BBTGuildWarData = {
    "分站赛 75 人只有静态 3 项，104-106 为游戏内运行时生成；页面显示「运行时生成（未解出）」，不编造。",
    "决赛场 16/17/18 的 15 人六维总和 = 各自 propRank（已验证）；终局和泉/藤松/米歇尔总和 = propRank。",
    "两档 stage（stage.match=2，血量 50~1000）为试训/镜像版，属性是否同规则未验证（本文件只覆盖主赛 match 属性）。",
-   "2026-11-13 终局实机补全：出羽十明/希雅·奥黛拉 六维照录用户截图（传奇圣山 SS+ 特殊分布）；和泉/藤松 实机值与「困难档×propRank/8000」推导逐项一致 → 规则验证通过；终局 5 人 Σ=propRank 9250。",
+   "2026-11-13 终局实机补全：出羽十明/希雅·奥黛拉 六维照录寒溟截图（传奇圣山 SS+ 特殊分布）；和泉/藤松 实机值与「困难档×propRank/8000」推导逐项一致 → 规则验证通过；终局 5 人 Σ=propRank 9250。",
    "米歇尔终局档未截图 → 仍标「推断（未截图）」；分站赛 75 人 104-106 仍标「运行时生成（未解出）」。"
   ],
   "checks": {
@@ -132,8 +132,8 @@ window.BBTGuildWarData = {
   "ruleLength": 1106,
   "scheduleNote": "真实 2026 档期以 common_help_rule_conf 原文为准；guild_war.schedule 表内时间戳为 2027 年占位 → 标「占位，不采用」，实际以服务端为准",
   "enemySource": "guild_war.match → robot_conf 队伍表/机器人表 → 角色卡 actor_id；19/19 关 × 5 人 = 95 机器人（task-6 解包，0 缺失）",
-  "enemyAttrNote": "客户端静态表只存 101 投射 / 102 弹跳 / 103 防守 三项；104 体能 / 105 运控 / 106 意识 由游戏内运行时生成（不是「游戏没配」）。决赛场 16/17/18 共 15 人 + 终局挑战 19 共 5 人 = **20 人六维完整**（终局出羽/希雅为 2026-11-13 用户实机截图；和泉/藤松实机值与此前推导逐项一致）；分站赛 1-15（75 人）的 104-106 仍「运行时生成（未解出）」，不编造；终局米歇尔未截图 → 标「推断（未截图）」。",
-  "enemyFullAttrsNote": "六维补全规则（用户实机截图 2026-11-13 困难 BOSS 战 5 人 + 客户端静态 3 项交叉验证）：决赛场三档「主/副/其余」= 困难 1920/1600/1120、中等 1488/1240/868、普通 1056/880/616；终局挑战 = 困难档全六维 × propRank/8000（BOSS 米歇尔特殊 ×propRank/12500）——**已由用户终局实机截图验证：和泉/藤松 实机六维与推导值逐项一致**。推断值标「推断」，实机值标「实机截图/实机验证」。",
+  "enemyAttrNote": "客户端静态表只存 101 投射 / 102 弹跳 / 103 防守 三项；104 体能 / 105 运控 / 106 意识 由游戏内运行时生成（不是「游戏没配」）。决赛场 16/17/18 共 15 人 + 终局挑战 19 共 5 人 = **20 人六维完整**（终局出羽/希雅为 2026-11-13 寒溟实机截图；和泉/藤松实机值与此前推导逐项一致）；分站赛 1-15（75 人）的 104-106 仍「运行时生成（未解出）」，不编造；终局米歇尔未截图 → 标「推断（未截图）」。",
+  "enemyFullAttrsNote": "六维补全规则（寒溟实机截图 2026-11-13 困难 BOSS 战 5 人 + 客户端静态 3 项交叉验证）：决赛场三档「主/副/其余」= 困难 1920/1600/1120、中等 1488/1240/868、普通 1056/880/616；终局挑战 = 困难档全六维 × propRank/8000（BOSS 米歇尔特殊 ×propRank/12500）——**已由寒溟终局实机截图验证：和泉/藤松 实机六维与推导值逐项一致**。推断值标「推断」，实机值标「实机截图/实机验证」。",
   "aiNameNote": "分站赛机器人 robot_name 为虚构 AI 名，actor_id 才是实际套用角色 → 页面显示「角色名（AI名）」",
   "phaseConfidence": "环节归属为推断：配置无显式「环节」字段，按 match id/顺序 + stage.show_name + jump_priority 推断",
   "stageMatchNote": "stage.match=1 为主赛（正常血量）、stage.match=2 为低血量 50~1000 的镜像/试训版（推断）；match16/17/18 共用 stage16（difficulty_match_list=[16,17,18]），match19 的 stage17 match_health=0（血量判定不适用）",
@@ -157,7 +157,7 @@ window.BBTGuildWarData = {
    "C"
   ],
   "parseHints": {
-   "robotPropertyTbl": "客户端静态 property_tbl 只配 101/102/103；104 体能/105 运控/106 意识为游戏内运行时生成（不是「游戏没配」）。决赛场 16/17/18 共 15 人 + 终局 3 人已按用户实机规则补全六维（data/structured/guild_war_enemy_full_attrs.json）；分站赛 75 人与终局出羽/希雅标「运行时生成（未解出）」/「待实机」。",
+   "robotPropertyTbl": "客户端静态 property_tbl 只配 101/102/103；104 体能/105 运控/106 意识为游戏内运行时生成（不是「游戏没配」）。决赛场 16/17/18 共 15 人 + 终局 3 人已按寒溟实机规则补全六维（data/structured/guild_war_enemy_full_attrs.json）；分站赛 75 人与终局出羽/希雅标「运行时生成（未解出）」/「待实机」。",
    "robotNames": "分站赛机器人 robot_name 是虚构 AI 名（如「花园 美织」「神崎 春葵」），actor_id 才是实际套用的角色（决定技能/成长）。页面建议显示「角色名（AI 名）」或仅显示 actor_id 对应角色。",
    "决赛场与终局": "match 16/17/18 = 同一个 stage 16/216（difficulty_match_list=[16,17,18]）的三个难度 match；match 19 = stage 17/217，match_health=0（血量判定不适用/由双方属性决定）。",
    "stageMatch": "stage.match=1 为主赛（正常血量），stage.match=2 为低血量（50-1000）镜像/试训版（推断）。"
@@ -4442,7 +4442,7 @@ window.BBTGuildWarData = {
        "sumMatchesPropRank": true,
        "attrSource": "screenshot",
        "attrSourceLabel": "实机截图",
-       "attrSourceDetail": "用户实机截图 2026-11-13",
+       "attrSourceDetail": "寒溟实机截图 2026-11-13",
        "verifiedByScreenshot": false,
        "skillIds": [
         1999001,
@@ -4634,7 +4634,7 @@ window.BBTGuildWarData = {
        "sumMatchesPropRank": true,
        "attrSource": "verified",
        "attrSourceLabel": "实机验证（推导一致）",
-       "attrSourceDetail": "用户实机截图 2026-11-13（与「困难档×propRank/8000」推导逐项一致）",
+       "attrSourceDetail": "寒溟实机截图 2026-11-13（与「困难档×propRank/8000」推导逐项一致）",
        "verifiedByScreenshot": true,
        "skillIds": [
         1004001
@@ -4680,7 +4680,7 @@ window.BBTGuildWarData = {
        "sumMatchesPropRank": true,
        "attrSource": "verified",
        "attrSourceLabel": "实机验证（推导一致）",
-       "attrSourceDetail": "用户实机截图 2026-11-13（与「困难档×propRank/8000」推导逐项一致）",
+       "attrSourceDetail": "寒溟实机截图 2026-11-13（与「困难档×propRank/8000」推导逐项一致）",
        "verifiedByScreenshot": true,
        "skillIds": [
         1014001
@@ -4773,7 +4773,7 @@ window.BBTGuildWarData = {
        "sumMatchesPropRank": true,
        "attrSource": "screenshot",
        "attrSourceLabel": "实机截图",
-       "attrSourceDetail": "用户实机截图 2026-11-13（传奇圣山 SS+ 特殊分布）",
+       "attrSourceDetail": "寒溟实机截图 2026-11-13（传奇圣山 SS+ 特殊分布）",
        "verifiedByScreenshot": false,
        "skillIds": [
         1035001,
@@ -4821,7 +4821,7 @@ window.BBTGuildWarData = {
        "sumMatchesPropRank": true,
        "attrSource": "screenshot",
        "attrSourceLabel": "实机截图",
-       "attrSourceDetail": "用户实机截图 2026-11-13（传奇圣山 SS+ 特殊分布）",
+       "attrSourceDetail": "寒溟实机截图 2026-11-13（传奇圣山 SS+ 特殊分布）",
        "verifiedByScreenshot": false,
        "skillIds": [
         1046001,

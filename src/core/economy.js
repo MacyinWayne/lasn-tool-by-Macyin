@@ -124,7 +124,7 @@
     var cost = o.trainingCost != null ? o.trainingCost : 25;
     var sessions = o.sessions != null ? Math.floor(o.sessions) : Math.floor(stamina / cost);
     var weights = o.weights || {};
-    // 训练配对：用户实机验证（2026-11-05 公测），与 attribute-layers.TRAINING_PAIRS 保持一致
+    // 训练配对：寒溟实机验证（2026-11-05 公测），与 attribute-layers.TRAINING_PAIRS 保持一致
     var pairs = [
       { id: 'shot', name: '投射训练', primary: '投射', secondary: '运控' },
       { id: 'jump', name: '弹跳训练', primary: '弹跳', secondary: '意识' },

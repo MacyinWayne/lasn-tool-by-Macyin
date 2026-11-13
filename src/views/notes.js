@@ -9,7 +9,7 @@
  *   → 起点续推（已有某角色笔记带某词条 → 高亮可用位置 + 下一步）
  *   → 我的笔记 / 链路备注（持久化）
  *
- * 规则来源：knowledge/笔记系统_规则与养成链.md（官方/社区截图 OCR + 用户口述 2026-11-05）。
+ * 规则来源：knowledge/笔记系统_规则与养成链.md（官方/社区截图 OCR + 寒溟口述 2026-11-05）。
  * 数据缺口（矩阵未数字化 / entry_id↔名称映射 / 适性概率）均显式标注，不虚构。
  */
 (function (root) {
@@ -73,7 +73,7 @@
     subtitle:
       '①主养角色搭配：选角色 → 契合度方案（H/1280 触发档位）+ 适性词条方案（适性刷彩）；②配套笔记角色；③合成/修订规则+模拟。',
     dataNote:
-      '本页来源：hoopgirls.live v8 社区数据（48×48 关系分/档位/词条库 141 条，社区图 37 名双源校验）+ knowledge/笔记系统_规则与养成链.md §5 + claims（契合词条 2 层链/适性=基础适性修正，用户口述 2026-11-05）· 未实装角色已过滤 · 缺口：触发加成两种口径待客户端核验、契合分→触发词条数为社区数据、适性概率待验证、手动契合分仅个人补录',
+      '本页来源：hoopgirls.live v8 社区数据（48×48 关系分/档位/词条库 141 条，社区图 37 名双源校验）+ knowledge/笔记系统_规则与养成链.md §5 + claims（契合词条 2 层链/适性=基础适性修正，寒溟口述 2026-11-05）· 未实装角色已过滤 · 缺口：触发加成两种口径待客户端核验、契合分→触发词条数为社区数据、适性概率待验证、手动契合分仅个人补录',
     mount: function (el, ctx) {
       var store = ctx.store;
       var chars = (ctx.data && ctx.data.characters) || (BBT.gameData ? BBT.gameData.characters() : []);
@@ -500,7 +500,7 @@
         return (
           '<div class="pair-compare" id="pair-compare-dogfood">📊 狗粮配养对比：' +
           lines.map(function (l) { return '<div>' + esc(l) + '</div>'; }).join('') +
-          '<div class="small muted">说明：一本笔记的契合词条数量随机、可重复、可多条，同目标词条相加（样本≥3 条，上限未知）；狗粮通用性榜保留为选 O 的参考（用户口述，细节待细化）。</div></div>'
+          '<div class="small muted">说明：一本笔记的契合词条数量随机、可重复、可多条，同目标词条相加（样本≥3 条，上限未知）；狗粮通用性榜保留为选 O 的参考（寒溟口述，细节待细化）。</div></div>'
         );
       }
 
@@ -551,7 +551,7 @@
           '<div class="small muted" style="margin-top:6px">复用对象：<strong>' + esc(plan.other ? plan.other.name : '待定') +
           '</strong>（第二词条目标）；该笔记可同时给主练与第二目标使用。' +
           (plan.otherRel ? ' O↔' + plan.other.name + ' 关系分 ' + plan.otherRel.score + '。' : '') +
-          '（契合词条随机数量/可重复/可多条、同目标相加；用户口述，细节待细化）</div>' +
+          '（契合词条随机数量/可重复/可多条、同目标相加；寒溟口述，细节待细化）</div>' +
           '<div class="small muted">' + esc(plan.reason) + '</div>' +
           '<div class="row" style="gap:6px;margin-top:8px"><button type="button" class="btn btn--sm" data-pair-apply="dogfood">应用为当前载体</button></div>' +
           '</div>'
@@ -567,7 +567,7 @@
           '<div class="card card--pad" id="dogfood-rank">' +
           '<div class="card-head"><div><div class="card-title"><span class="ico">🍖</span>狗粮通用性榜（Top 15）</div>' +
           '<div class="card-sub">平均契合分=对其他已实装角色关系分的平均（不含自己）；用于选狗粮主人 O 的参考（实际复用看配养出的第二词条）。</div></div>' +
-          '<span class="badge badge--info">用户口述/待细化</span></div>' +
+          '<span class="badge badge--info">寒溟口述/待细化</span></div>' +
           '<div class="table-wrap"><table class="table"><thead><tr><th>#</th><th>角色</th><th>位置</th><th class="num">平均契合分</th><th>状态</th><th></th></tr></thead><tbody>' +
           top.map(function (item) {
             return '<tr><td>' + esc(item.rank) + '</td><td><strong>' + esc(item.name) + '</strong></td>' +
@@ -696,7 +696,7 @@
           '<div class="card card--pad" id="note-loop">' +
           '<div class="card-head"><div><div class="card-title"><span class="ico">🔺</span>高契合闭环推荐（三角）</div>' +
           '<div class="card-sub">彼此相性都高的 2-4 人小团，互带笔记形成循环链；先做三角（四团待补）。</div></div>' +
-          '<span class="badge badge--info">用户思路/待细化</span></div>' +
+          '<span class="badge badge--info">寒溟思路/待细化</span></div>' +
           '<div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">' +
           '<label class="small">选择三角：<select class="select" id="loop-triple">' +
           top.map(function (item, i) {
@@ -1146,7 +1146,7 @@
               '<span class="badge badge--warn">社区级 · 待客户端核验</span>'
             : '<span class="badge badge--warn">契合度矩阵：已数字化部分</span>' +
               '<span class="badge badge--warn">entry_id↔名称待映射</span>') +
-          '<span class="badge badge--info">规则=官方截图/用户口述</span>' +
+          '<span class="badge badge--info">规则=官方截图/寒溟口述</span>' +
           '</div></div>' +
           (newData
             ? '<div class="small muted" style="margin-top:6px">数据源：' + esc((newData.meta.primarySource && newData.meta.primarySource.name) || 'hoopgirls.live') +
@@ -1489,7 +1489,7 @@
           '<div class="row" style="gap:8px;margin-top:8px"><button type="button" class="btn btn--sm" id="consist-check">检查一致性</button>' +
           '<span class="small muted">合成策略：同目标 profile 全程一致（训练带相同两本笔记、按 profile 分类库存）</span></div>' +
           '<div id="consist-result">' + consistencyResultHtml() + '</div>' +
-          '<div class="small muted" style="margin-top:6px">混入其他角色词条（如佐久间）会抢主驱动、导致目标词条在 3 合 1 被挤掉（用户实测 3 金中 2 本带佐久间 → 红笔记希雅全丢）。</div>'
+          '<div class="small muted" style="margin-top:6px">混入其他角色词条（如佐久间）会抢主驱动、导致目标词条在 3 合 1 被挤掉（寒溟实测 3 金中 2 本带佐久间 → 红笔记希雅全丢）。</div>'
         );
       }
 
@@ -1529,7 +1529,7 @@
           '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">🚫</span><span>' +
           '<strong>不跨层传递：</strong>两本笔记自带的契合词条<strong>不会</strong>让 B 的笔记出现「那本笔记词条对象」的契合词条；' +
           '它们只是提高其<strong>原主人（X/Y）自己</strong>的契合词条出现概率。所以契合链只有这 2 层，不存在 2^depth 递归。</span></div>' +
-          '<div class="small muted" style="margin-top:6px">来源：knowledge/笔记系统_规则与养成链.md §5 + claims（用户口述修正 2026-11-05）。</div>' +
+          '<div class="small muted" style="margin-top:6px">来源：knowledge/笔记系统_规则与养成链.md §5 + claims（寒溟口述修正 2026-11-05）。</div>' +
           '<details class="fold" style="margin-top:12px"><summary class="section-label" style="cursor:pointer">合成 / 修订素材树（<strong>不用于契合词条传递</strong>，仅消耗估算）</summary>' +
           '<div class="note-chain-controls" style="margin-top:8px">' +
           '<label class="small">目标词条（合成/修订）：<select class="select" id="note-chain-entry">' +
@@ -1605,18 +1605,18 @@
           '</tbody></table></div>' +
           '<div class="small muted" style="margin-top:8px">合成路径：<strong>3 册同角色、同品质 → 高一阶</strong>；' +
           '紫 → 红理论约需 <strong>9 本紫</strong>（紫→金 3 本 × 金→红 3 本）。彩色（彩）不可合成。' +
-          '（估算口径：不考虑随机词条/失败；用户口述/社区数据待细化）</div>' +
+          '（估算口径：不考虑随机词条/失败；寒溟口述/社区数据待细化）</div>' +
           '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">🎯</span><span>' +
           '<strong>词条类型门槛（初次记录品质，2026-11-08 实测）：</strong>契合度词条仅<strong>紫色以上</strong>；' +
           '技能词条仅<strong>金色以上</strong>；适性词条仅<strong>红色以上</strong>。合成升品质<strong>不会补发</strong>对应词条类型。' +
           '→ 想产出「技能+契合」的笔记，初次记录必须金色以上；要带适性必须红色以上。</span></div>' +
           '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">⚠️</span><span>' +
           '<strong>合成升阶不保证词条全部保留，高阶合成可能丢失目标词条。</strong><br/>' +
-          '实测观察：<strong>紫→金</strong>为并集保留（3 紫词条合并到 1 金）；<strong>金→红</strong>可能随机/丢失（用户实测 3 金合 1 红时希雅词条全部丢失；样本少，待统计）。<br/>' +
+          '实测观察：<strong>紫→金</strong>为并集保留（3 紫词条合并到 1 金）；<strong>金→红</strong>可能随机/丢失（寒溟实测 3 金合 1 红时希雅词条全部丢失；样本少，待统计）。<br/>' +
           '建议：不要把带目标词条的高品质笔记盲目拿去合成；优先保留词条好的作为素材/最终笔记。' +
           '</span></div>' +
           '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">🧪</span><span>' +
-          '<strong>3 合 1 词条保留规则（假说，用户实测+待更多样本验证）</strong><br/>' +
+          '<strong>3 合 1 词条保留规则（假说，寒溟实测+待更多样本验证）</strong><br/>' +
           '① 优先按「出现次数」保留主驱动词条（出现最多的优先）；② 剩余单条词条之间「按星级取高」保留。<br/>' +
           '案例：3 紫 → 金：野上1×3 + 希雅1×2 + 希雅2×2 → 金 = 野上1 + 希雅2 + 希雅1；<br/>' +
           '3 金 → 红：野上1×3 + 希雅1×1 + 希雅2×1 + 佐久间1×1 + 佐久间3×1 → 红 = 野上1 + 佐久间3。<br/>' +
@@ -1633,7 +1633,7 @@
           '<div class="card card--pad" id="note-rules">' +
           '<div class="card-head"><div><div class="card-title"><span class="ico">📜</span>规则与数据来源</div>' +
           '<div class="card-sub">修订 / 合成 / 记录 / 适性词条说明。</div></div>' +
-          '<span class="badge badge--info">官方截图 + 用户口述</span></div>' +
+          '<span class="badge badge--info">官方截图 + 寒溟口述</span></div>' +
           '<ul class="note-rules">' +
           (rules
             ? [rules.revise, rules.combine, rules.record, rules.reviseKeep, rules.fitNote].map(function (r) {
@@ -1653,7 +1653,7 @@
               ' · ' + esc((newData.meta.validation && newData.meta.validation.result) || '双源 100% 校验') +
               ' · ' + esc(newData.meta.confidence) + '</div>'
             : '') +
-          '<div class="small muted">规则来源：knowledge/笔记系统_规则与养成链.md §5 + claims（用户口述修正 2026-11-05）</div>' +
+          '<div class="small muted">规则来源：knowledge/笔记系统_规则与养成链.md §5 + claims（寒溟口述修正 2026-11-05）</div>' +
           '<div class="team-sub-label">数据缺口（显式标注，不虚构）</div>' +
           '<ul class="note-rules small muted">' + gaps.map(function (g) { return '<li>' + esc(g) + '</li>'; }).join('') + '</ul>' +
           '</div>'
@@ -2256,7 +2256,7 @@
         return '<div class="card card--pad" id="note-drop-rules">' +
           '<div class="card-head"><div><div class="card-title">🧬 记录 vs 合成：词条产出规则</div>' +
           '<div class="card-sub">哪些词条只在「初次记录」析出、哪些合成/修订做不出来但可以保留。</div></div>' +
-          '<span class="badge badge--ok">2026-11-10 用户确认</span></div>' +
+          '<span class="badge badge--ok">2026-11-10 寒溟确认</span></div>' +
           '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>笔记品质</th><th>初次记录时可能析出的特殊词条</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
           '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">⚠️</span><span>' +
           '<strong>关键限制：</strong>上述特殊词条（契合度 / 东都大会 / 适性 / 技能）都是「<strong>初次记录</strong>」时才可能析出的；' +
@@ -2278,7 +2278,7 @@
           '<li>合成产物不带适性词条（适性仅「初次记录」红色以上才可能出）。</li>' +
           '<li>记录笔等级门槛：Lv2 可记录金色 / Lv4 红 / Lv6 彩。</li>' +
           '</ul>' +
-          '<div class="tiny muted" style="margin-top:4px">规则来源：knowledge/笔记系统_规则与养成链.md §18-19 + 用户实测；保留/升星为服务端规则，客户端仅展示对比。</div>' +
+          '<div class="tiny muted" style="margin-top:4px">规则来源：knowledge/笔记系统_规则与养成链.md §18-19 + 寒溟实测；保留/升星为服务端规则，客户端仅展示对比。</div>' +
           '</div>';
       }
       function renderAll() {

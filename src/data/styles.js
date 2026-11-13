@@ -2,7 +2,7 @@
 window.BBTStyleData = {
  "schema": "style-bonus-v1",
  "generatedAt": "2026-11-09",
- "source": "用户口径（2026-11-09）+ res19 match_label 标签表/标签计算表（卡色由标签表 outline_color 确证）",
+ "source": "寒溟口径（2026-11-09）+ res19 match_label 标签表/标签计算表（卡色由标签表 outline_color 确证）",
  "note": "此「风格」= 角色卡牌颜色（蓝/红/绿/紫/金），与战场定位标签（得分手/防守者/篮板手/组织者/多面手）不是同一维度。",
  "stacking": "不同类效果可同时触发（如同时满足速度 3 人 + 力量 3 人，则速卡与力卡都加成）；同类只取满足的最高档。",
  "cardColors": [
@@ -154,7 +154,7 @@ window.BBTStyleData = {
    "标签表（6 行：速度/技巧/力量/球商/全能 + 无）",
    "标签计算表（18 行：label_level + condition_info + label_effect）"
   ],
-  "effectCodeRule": "label_effect 编码 X01=10%、X02=25%；全能 501=5%、502=10%、503=25%（与用户口径一致）"
+  "effectCodeRule": "label_effect 编码 X01=10%、X02=25%；全能 501=5%、502=10%、503=25%（与寒溟口径一致）"
  },
  "distribution": {
   "力量": 10,

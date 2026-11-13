@@ -1539,10 +1539,10 @@ window.BBEquipSkillMap = {
    "quality": 3,
    "rank": 1,
    "actualMaxQuality": "红",
-   "redUnlockCondition": "需一砖入魂满星（未满星不可得；用户实机口径 2026-11-12）",
-   "obtainabilityNote": "用户实机口径（2026-11-12，原话要点：渐入佳境可以拿红品质、解锁条件=一砖入魂满星）→ 实际可获上限 = 红（受限）；红档 210433 渐入佳境+、210438/210439 二阶红/红1 **可获得但需一砖入魂满星**。",
-   "obtainabilitySource": "用户实机口径（2026-11-12）",
-   "obtainabilityShort": "实际可获：红（红档需满星） · 用户实机口径",
+   "redUnlockCondition": "需一砖入魂满星（未满星不可得；寒溟实机口径 2026-11-12）",
+   "obtainabilityNote": "寒溟实机口径（2026-11-12，原话要点：渐入佳境可以拿红品质、解锁条件=一砖入魂满星）→ 实际可获上限 = 红（受限）；红档 210433 渐入佳境+、210438/210439 二阶红/红1 **可获得但需一砖入魂满星**。",
+   "obtainabilitySource": "寒溟实机口径（2026-11-12）",
+   "obtainabilityShort": "实际可获：红（红档需满星） · 寒溟实机口径",
    "skills": [
     {
      "skillName": "渐入佳境（基础·普通）",
@@ -1596,7 +1596,7 @@ window.BBEquipSkillMap = {
      "tier": "红",
      "descIncomplete": false,
      "obtainableNow": true,
-     "unlockCondition": "需一砖入魂满星（未满星不可得；用户实机口径 2026-11-12）"
+     "unlockCondition": "需一砖入魂满星（未满星不可得；寒溟实机口径 2026-11-12）"
     },
     {
      "skillName": "渐入佳境（二阶红）",
@@ -1605,7 +1605,7 @@ window.BBEquipSkillMap = {
      "tier": "二阶红",
      "descIncomplete": true,
      "obtainableNow": true,
-     "unlockCondition": "需一砖入魂满星（未满星不可得；用户实机口径 2026-11-12）"
+     "unlockCondition": "需一砖入魂满星（未满星不可得；寒溟实机口径 2026-11-12）"
     },
     {
      "skillName": "渐入佳境（二阶红1）",
@@ -1614,7 +1614,7 @@ window.BBEquipSkillMap = {
      "tier": "二阶红1",
      "descIncomplete": true,
      "obtainableNow": true,
-     "unlockCondition": "需一砖入魂满星（未满星不可得；用户实机口径 2026-11-12）"
+     "unlockCondition": "需一砖入魂满星（未满星不可得；寒溟实机口径 2026-11-12）"
     }
    ]
   },
@@ -1863,10 +1863,10 @@ window.BBEquipSkillMap = {
    "quality": 3,
    "rank": 1,
    "actualMaxQuality": "金",
-   "redUnlockCondition": "当前不可获得（配置存在；用户实机口径 2026-11-12）",
-   "obtainabilityNote": "用户实机口径（2026-11-12，原话要点：目前拿不到红品质技能、最多只能到金色）→ 实际可获上限 = 金；配置中的红档（210432 气盛如虹+、210434-210437 二阶红/红1-3）存在但**当前不可获得**。",
-   "obtainabilitySource": "用户实机口径（2026-11-12）",
-   "obtainabilityShort": "实际可获：金（红档当前不可得） · 用户实机口径",
+   "redUnlockCondition": "当前不可获得（配置存在；寒溟实机口径 2026-11-12）",
+   "obtainabilityNote": "寒溟实机口径（2026-11-12，原话要点：目前拿不到红品质技能、最多只能到金色）→ 实际可获上限 = 金；配置中的红档（210432 气盛如虹+、210434-210437 二阶红/红1-3）存在但**当前不可获得**。",
+   "obtainabilitySource": "寒溟实机口径（2026-11-12）",
+   "obtainabilityShort": "实际可获：金（红档当前不可得） · 寒溟实机口径",
    "skills": [
     {
      "skillName": "气盛如虹（基础·普通）",
@@ -1938,7 +1938,7 @@ window.BBEquipSkillMap = {
      "tier": "红",
      "descIncomplete": false,
      "obtainableNow": false,
-     "unlockCondition": "当前不可获得（配置存在；用户实机口径 2026-11-12）"
+     "unlockCondition": "当前不可获得（配置存在；寒溟实机口径 2026-11-12）"
     },
     {
      "skillName": "气盛如虹（二阶红）",
@@ -1947,7 +1947,7 @@ window.BBEquipSkillMap = {
      "tier": "二阶红",
      "descIncomplete": true,
      "obtainableNow": false,
-     "unlockCondition": "当前不可获得（配置存在；用户实机口径 2026-11-12）"
+     "unlockCondition": "当前不可获得（配置存在；寒溟实机口径 2026-11-12）"
     },
     {
      "skillName": "气盛如虹（二阶红1）",
@@ -1956,7 +1956,7 @@ window.BBEquipSkillMap = {
      "tier": "二阶红1",
      "descIncomplete": true,
      "obtainableNow": false,
-     "unlockCondition": "当前不可获得（配置存在；用户实机口径 2026-11-12）"
+     "unlockCondition": "当前不可获得（配置存在；寒溟实机口径 2026-11-12）"
     },
     {
      "skillName": "气盛如虹（二阶红2）",
@@ -1965,7 +1965,7 @@ window.BBEquipSkillMap = {
      "tier": "二阶红2",
      "descIncomplete": true,
      "obtainableNow": false,
-     "unlockCondition": "当前不可获得（配置存在；用户实机口径 2026-11-12）"
+     "unlockCondition": "当前不可获得（配置存在；寒溟实机口径 2026-11-12）"
     },
     {
      "skillName": "气盛如虹（二阶红3）",
@@ -1974,7 +1974,7 @@ window.BBEquipSkillMap = {
      "tier": "二阶红3",
      "descIncomplete": true,
      "obtainableNow": false,
-     "unlockCondition": "当前不可获得（配置存在；用户实机口径 2026-11-12）"
+     "unlockCondition": "当前不可获得（配置存在；寒溟实机口径 2026-11-12）"
     }
    ]
   },

@@ -113,7 +113,7 @@
       '图鉴评分只在 C 层内部比较。GameKee 六维 = C 层子集（' +
       layers.codexMissingAttributes().map(function (a) { return a.name; }).join(' / ') +
       ' 待客户端补全）。来源：' + dom.esc(layers.SOURCE) + '</span></div>' +
-      '<div class="section-label" style="margin-top:16px">训练项 → 双属性配对（用户实机验证 2026-11-05）</div>' +
+      '<div class="section-label" style="margin-top:16px">训练项 → 双属性配对（寒溟实机验证 2026-11-05）</div>' +
       '<div class="table-wrap"><table class="table" style="min-width:560px"><thead><tr>' +
       '<th>训练项</th><th>主属性（A 层）</th><th>副属性（A 层）</th><th>置信度</th>' +
       '</tr></thead><tbody>' + pairRows + '</tbody></table></div>' +
@@ -349,7 +349,7 @@
     title: '公式卡与参数',
     subtitle: '这里是一切的源头：每个参数都可编辑、都带来源与置信度。改完后训练/表情/图鉴同步更新，数据存在浏览器本地。',
     dataNote:
-      '来源：T3 model.json + 客户端逆向 + 用户实机 2026-11-05；「初版/待复核」项已标注',
+      '来源：T3 model.json + 客户端逆向 + 寒溟实机 2026-11-05；「初版/待复核」项已标注',
     mount: function (el, ctx) {
       var format = BBT.format;
       var params = BBT.params;
@@ -383,7 +383,7 @@
         dom.confBadge('客户端确证') + '</div>' +
         '<div id="live-training-formula">' + trainingFormulaHtml(values) + '</div>' +
         '<div class="formula-desc">括号内是固定项与等级成长，四个乘区分开计算，尾项「主属性加值」不受放大。' +
-        '双属性配对（投射→运控、弹跳→意识 等）以用户实机验证（2026-11-05 公测）为准；副属性占比实测约 33%~50%，待更多样本。</div>' +
+        '双属性配对（投射→运控、弹跳→意识 等）以寒溟实机验证（2026-11-05 公测）为准；副属性占比实测约 33%~50%，待更多样本。</div>' +
         '<div class="row" style="margin-top:12px"><button class="btn btn--sm" data-goto="training">去训练计算器验证</button></div>' +
         '</div>';
 

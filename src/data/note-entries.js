@@ -1,7 +1,7 @@
 /*!
  * data/note-entries.js —— 自动生成，请勿手改。
  * 生成脚本：tool/scripts/build-note-entries.mjs
- * 生成时间：2026-11-05 23:42
+ * 生成时间：2026-11-14 07:53
  * 数据版本：v2026.11.05
  * 口径：日志词条字段来自客户端日志；具名词条来自截图 OCR；映射/概率缺口见 meta.gaps
  */
@@ -9,12 +9,12 @@
   'use strict';
   var data = {
   "schema": 1,
-  "generatedAt": "2026-11-05 23:42",
+  "generatedAt": "2026-11-14 07:53",
   "dataVersion": "v2026.11.05",
   "mode": "sample",
   "source": "data/pc-client/snapshots/training_20261105/notes_from_log.json + data/community/notes_harmony/note_samples.json",
   "meta": {
-    "generatedAt": "2026-11-05 23:42",
+    "generatedAt": "2026-11-14 07:53",
     "dataVersion": "v2026.11.05",
     "confidence": "日志字段=客户端事实；具名词条=截图 OCR 样本；entry_id↔名称映射待补；属性 property_id 映射未解",
     "sources": [
@@ -75,7 +75,7 @@
     "revise": "修订：获得第 1 册红色笔记后开启；消耗 2 册同角色、同品质笔记 → 重新生成词条且品质不变",
     "reviseKeep": "两本笔记都携带的词条在修订中必定保留（用两本都带 X 的素材修订目标）",
     "fitNote": "适性词条：任意记录/分解或修订均可能出；用带目标适性词条的素材可提高概率（概率机制待实测）",
-    "source": "knowledge/笔记系统_规则与养成链.md（官方/社区截图 OCR + 用户口述 2026-11-05）"
+    "source": "knowledge/笔记系统_规则与养成链.md（官方/社区截图 OCR + 寒溟口述 2026-11-05）"
   },
   "logEntries": [
     {

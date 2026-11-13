@@ -2,19 +2,19 @@
  * data/notes.js —— 自动生成，请勿手改。
  * 生成脚本：tool/scripts/build-notes.mjs
  * 数据：hoopgirls.live v8（48×48 关系分/档位/词条库）+ 社区图 37 名双源校验
- * 生成时间：2026-11-06 00:27
+ * 生成时间：2026-11-14 07:53
  * 口径：社区级高可信；未实装角色按 in_community_37 过滤；待客户端核验
  */
 (function (root) {
   'use strict';
   var data = {
   "schema": 1,
-  "generatedAt": "2026-11-06 00:27",
+  "generatedAt": "2026-11-14 07:53",
   "dataVersion": "v2026.11.05",
   "mode": "structured",
   "source": "data/structured/note_harmony_matrix.json + data/raw/community/_hoopgirls_inheritance_rules.json",
   "meta": {
-    "generatedAt": "2026-11-06 00:27",
+    "generatedAt": "2026-11-14 07:53",
     "dataVersion": "v2026.11.05",
     "title": "笔记契合关系矩阵（角色关系分）数字版",
     "primarySource": {
@@ -29,7 +29,7 @@
       "name": "张君宝《笔记契合关系一图流》数据版 2026.11.02",
       "channel": "QQ 群 113452405（作者在 B 站视频 BV1sRx26GEfb 评论称「一图流自取」）",
       "backup": "data/community/refs/notes_harmony_matrix_20261102.jpg",
-      "digitized": "data/community/notes_harmony/matrix_37.json（用户提供图片，37×37 人工转录，22/22 摘要卡校验、对角线 37/37=0、对称 666/666）",
+      "digitized": "data/community/notes_harmony/matrix_37.json（寒溟提供图片，37×37 人工转录，22/22 摘要卡校验、对角线 37/37=0、对称 666/666）",
       "relation": "37 名公开球星子集；与本数字版 48×48 属同一「角色关系分」数据"
     },
     "validation": {

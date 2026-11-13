@@ -1,7 +1,7 @@
 /*!
  * core/ownership.js —— 全局「我的角色」（T5.3 第一步）
  *
- * 用户要求：页面第一步必须先选「你有哪些角色」，之后所有最优算法
+ * 寒溟要求：页面第一步必须先选「你有哪些角色」，之后所有最优算法
  * （笔记契合 / 配装推荐 / 养成推荐 / 阵容评估 / 比赛模拟）只在已拥有角色范围内计算。
  *
  * 持久化：localStorage['bbt.ownedCharacters'] = content_id 数组。
@@ -99,7 +99,7 @@
           out.push(key);
         }
       });
-      return out; // 空数组 = 用户确认「一个都没有」，合法
+      return out; // 空数组 = 寒溟确认「一个都没有」，合法
     } catch (err) {
       return null;
     }

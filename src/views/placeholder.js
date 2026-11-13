@@ -1,7 +1,7 @@
 /*!
  * views/placeholder.js —— 未定页签占位模板（T6 改造）
  *
- * 用途：用户后续会逐个页签给出具体需求；新需求到达前，用本模板先占位：
+ * 用途：寒溟后续会逐个页签给出具体需求；新需求到达前，用本模板先占位：
  *   - 说明「待需求」与当前可复用组件
  *   - 显示本页数据版本/来源，避免空白页
  *
@@ -30,7 +30,7 @@
     var gd = BBT.gameData;
     var meta = gd && gd.meta ? gd.meta() : { dataVersion: 'unknown', updatedAt: '' };
     var title = o.title || '待需求页签';
-    var note = o.note || '本页功能等待用户明确需求后实现；当前结构已预留，可直接替换。';
+    var note = o.note || '本页功能等待寒溟明确需求后实现；当前结构已预留，可直接替换。';
     var reusable = Array.isArray(o.reusable) && o.reusable.length ? o.reusable : REUSABLE_COMPONENTS;
     var html = '';
     html +=

@@ -2,7 +2,7 @@
   'use strict';
   var data = {
   "schema": 1,
-  "generatedAt": "2026-11-05 22:00",
+  "generatedAt": "2026-11-14 07:53",
   "mode": "structured",
   "source": "data/structured/derived_roster.json",
   "count": 38,

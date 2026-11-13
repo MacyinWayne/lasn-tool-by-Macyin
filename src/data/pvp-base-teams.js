@@ -1,8 +1,8 @@
-/** src/data/pvp-base-teams.js —— 用户重构的 PVP 三基阵（2026-11-13 用户口径，不自动生成） */
+/** src/data/pvp-base-teams.js —— 寒溟重构的 PVP 三基阵（2026-11-13 寒溟口径，不自动生成） */
 window.BBTPvpBaseTeams = {
   schema: 'pvp-base-teams-v1',
   generatedAt: '2026-11-13',
-  source: '用户口径（2026-11-13）：基于当前版本重构三个基阵，每阵 = 1 全能金卡（+5% 全队所有卡）+ 3 同风格（+10%）+ 1 摇摆，尽量吃满体系 buff。',
+  source: '寒溟口径（2026-11-13）：基于当前版本重构三个基阵，每阵 = 1 全能金卡（+5% 全队所有卡）+ 3 同风格（+10%）+ 1 摇摆，尽量吃满体系 buff。',
   meta: {
     teamSize: 5,
     formations: 3,
@@ -54,7 +54,7 @@ window.BBTPvpBaseTeams = {
       ],
       strength: '三分体系相对最满意的阵：球商 ×3 吃看破时打卡加成；千圣被动强化分卫/小前投射',
       weakness: '缺一个增加意识的 buff 手（球商队吃看破能力）——已排查：现有候选要么不是球商、要么位置不合适，暂不凑',
-      notes: '用户排查过意识 buff 手候选后决定不补位'
+      notes: '寒溟排查过意识 buff 手候选后决定不补位'
     }
   ]
 };

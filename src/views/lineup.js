@@ -7,7 +7,7 @@
  *   3) 杯赛配置（按当届杯赛维护，需经常更新）
  *
  * 当前为「框架页」：栏目结构 + 规则占位 + 每阵容 5 个位置槽位（待配置占位）+ 备注；
- * 赛制规则/限制/克制关系由用户逐块补充后填入（不虚构规则）。
+ * 赛制规则/限制/克制关系由寒溟逐块补充后填入（不虚构规则）。
  * 备注持久化：localStorage 键 bbt.lineup.v1（按栏目 id 存）。
  */
 (function (root) {
@@ -262,8 +262,8 @@
       }).join('');
       return '<div class="card card--pad" data-user-team="' + esc(t.label) + '" style="margin-bottom:10px">' +
         '<div class="card-head"><div><div class="card-title">' + esc(t.label) + '（我的配置·基线）</div>' +
-        '<div class="card-sub">' + esc(t.system) + ' 体系 · 用户实机口述</div></div><span class="badge badge--ok">基线</span></div>' +
-        '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>位置</th><th>角色</th><th>职责/备注（用户口述）</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+        '<div class="card-sub">' + esc(t.system) + ' 体系 · 寒溟实机口述</div></div><span class="badge badge--ok">基线</span></div>' +
+        '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>位置</th><th>角色</th><th>职责/备注（寒溟口述）</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
     }).join('');
     return '<div id="pvp-baseline" style="margin-top:10px">' + cards + '</div>';
   }
@@ -368,7 +368,7 @@
     return '<div class="card card--pad" id="pvp-base-teams" style="margin-bottom:12px">' +
       '<div class="card-head"><div><div class="card-title"><span class="ico">🗂️</span>我的 PVP 三基阵（2026-11-13 重构）</div>' +
       '<div class="card-sub">' + esc(meta.note || '') + '</div></div>' +
-      '<span class="badge badge--ok">用户口径</span></div>' +
+      '<span class="badge badge--ok">寒溟口径</span></div>' +
       '<div class="small muted" style="margin-top:4px">风格规则：' + esc(meta.styleRule || '') + '</div>' +
       blocks + '</div>';
   }
@@ -515,7 +515,7 @@
         var ul = p.userLineup;
         if (!ul || !ul.slots) return '';
         return '<div style="margin-top:8px;padding:8px;border:1px dashed #b9c4d0;border-radius:6px">' +
-          '<div class="small"><strong>🎯 用户实机配置</strong>' + (ul.source ? '<span class="tiny muted">（' + esc(ul.source) + '）</span>' : '') + '</div>' +
+          '<div class="small"><strong>🎯 寒溟实机配置</strong>' + (ul.source ? '<span class="tiny muted">（' + esc(ul.source) + '）</span>' : '') + '</div>' +
           '<div class="table-wrap" style="margin-top:4px"><table class="table" style="min-width:520px"><thead><tr><th>位置</th><th>角色</th><th>器材技能</th><th>战术</th></tr></thead><tbody>' +
           (ul.slots || []).map(function (s) {
             return '<tr><td><strong>' + esc(s.pos) + '</strong></td><td>' + esc(s.name) + '</td><td class="small">' + esc(s.equip || '—') + '</td><td class="small">' + esc(s.tactic || '—') + '</td></tr>';
@@ -529,7 +529,7 @@
   }
   function saintBuilderHtml(key) {
     var S = saintData(); if (!S || !S.meta) return '';
-    // 2026-11-12 用户口径：下拉列全部角色（不再按「我的角色」隐藏），未拥有只标记；圣山不锁定（可重复，仅软提示）
+    // 2026-11-12 寒溟口径：下拉列全部角色（不再按「我的角色」隐藏），未拥有只标记；圣山不锁定（可重复，仅软提示）
     var entries = allCharEntries();
     if (!entries.length) entries = Object.keys(S.meta).sort().map(function (n) { return { name: n, role: '' }; });
     var plan = S.plans[key] || {};
@@ -608,7 +608,7 @@
     return s && s.cupEvents ? s.cupEvents : null;
   }
 
-  /* ===== 杯赛自选配队（2026-11-12 用户口径：杯赛不锁定，可重复；全角色下拉 + 未拥有标记） ===== */
+  /* ===== 杯赛自选配队（2026-11-12 寒溟口径：杯赛不锁定，可重复；全角色下拉 + 未拥有标记） ===== */
   var cupDraftCache = null;
   function cupDraftDefault() { return { teams: { 'cup-main': {}, 'cup-sub': {} } }; }
   function loadCupDraft() {
@@ -712,7 +712,7 @@
   /* ================= 协会赛（圣山投射协会赛）数据渲染 =================
    * 数据：tool/src/data/guild-war.js（window.BBTGuildWarData）
    * 口径：规则原文照录（file#poolOffset）；敌人=robot_conf 解包（AI 实际以游戏内为准）；
-   *       环节归属=推断；敌人 104-106 为游戏内运行时生成（决赛场/终局已按用户实机规则补全六维）；
+   *       环节归属=推断；敌人 104-106 为游戏内运行时生成（决赛场/终局已按寒溟实机规则补全六维）；
    *       guild_war.schedule 表为 2027 占位不采用。
    */
   function guildWarData() {
@@ -840,7 +840,7 @@
       '<div class="tiny muted" style="margin-top:6px">来源：' + esc(L.source) + '（生成 ' + esc(L.generatedAt) + '）</div></div>';
   }
 
-  /* 敌人属性生成规则卡（2026-11-13 用户实机口径） */
+  /* 敌人属性生成规则卡（2026-11-13 寒溟实机口径） */
   function gwAttrRuleCardHtml(G) {
     var F = G.enemyFullAttrs || {};
     var rule = F.rule || {};
@@ -867,14 +867,14 @@
     var verify = rule.verification || {};
     var verifyHtml = verify.finalRuleVerified
       ? '<div class="notice notice--ok" style="margin-top:8px"><span class="notice-ico">✅</span><span class="small">' +
-        '<strong>终局规则验证（用户实机截图 2026-11-13）：</strong>' + esc(verify.detail || '') + '<br>' +
+        '<strong>终局规则验证（寒溟实机截图 2026-11-13）：</strong>' + esc(verify.detail || '') + '<br>' +
         esc(verify.sumNote || '') + (verify.legendaryNote ? '<br>' + esc(verify.legendaryNote) : '') +
         (verify.bossNote ? '<br>' + esc(verify.bossNote) : '') + '</span></div>'
       : '';
     return '<div class="card card--pad" id="gw-attr-rule" data-gw-attr-rule="1" style="margin-bottom:10px">' +
       '<div class="card-head"><div><div class="card-title">⚙️ 敌人属性生成规则（六维补全）</div>' +
       '<div class="card-sub">客户端静态表只存 3 项（投射/弹跳/防守），体能/运控/意识由游戏内按「主/副/其余」规则生成；玩家实机截图已证实。</div></div>' +
-      '<span class="badge badge--ok">用户实机口径 2026-11-13</span></div>' +
+      '<span class="badge badge--ok">寒溟实机口径 2026-11-13</span></div>' +
       (G.meta.enemyFullAttrsNote ? '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">📐</span><span class="small">' + esc(G.meta.enemyFullAttrsNote) + '</span></div>' : '') +
       '<div class="team-sub-label" style="margin-top:10px">决赛场三档数值（主属性 / 副属性 / 其余）</div>' +
       '<div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:520px"><thead><tr>' +
@@ -891,7 +891,7 @@
       '<span class="badge badge--warn">' + esc(cov.pendingSix) + ' 人待实机</span>' +
       '<span class="badge badge--neutral">' + esc(cov.runtimeGenerated) + ' 人 104-106 运行时生成（分站赛 75 人）</span>' +
       '<span class="badge badge--info">共 ' + esc(cov.totalEnemies) + ' 名敌人</span></div>' +
-      '<div class="tiny muted" style="margin-top:6px">来源：' + esc(src.screenshot || '用户实机截图 2026-11-13') +
+      '<div class="tiny muted" style="margin-top:6px">来源：' + esc(src.screenshot || '寒溟实机截图 2026-11-13') +
       (src.screenshotFinal ? '；' + esc(src.screenshotFinal) : '') + '；' + esc(src.client || '客户端静态 3 项') +
       '。推断值已标「推断」，未解出的不编造。</div></div>';
   }
@@ -1153,7 +1153,7 @@
       '<textarea class="input" id="lineup-note-' + esc(sec.id) + '" data-lineup-note="' + esc(sec.id) + '" rows="4" maxlength="4000" placeholder="补充该赛制的规则、限制、配队思路（自动保存到本地）…">' +
       esc(notes[sec.id] || '') +
       '</textarea>' +
-      '<div class="small muted" style="margin-top:6px">说明：当前仅为框架页；具体赛制规则由用户逐块补充后填入，不虚构。</div>' +
+      '<div class="small muted" style="margin-top:6px">说明：当前仅为框架页；具体赛制规则由寒溟逐块补充后填入，不虚构。</div>' +
       '</div>'
     );
   }
@@ -1210,7 +1210,7 @@
       '<div class="card-head"><div>' +
       '<div class="card-title"><span class="ico">🎨</span>通用配队加成 · 风格（卡牌颜色）</div>' +
       '<div class="card-sub">' + esc(sd.note || '风格 = 角色卡牌颜色（蓝/红/绿/紫/金），与战场定位标签（得分手/防守者/篮板手/组织者/多面手）不是同一维度。') + '</div>' +
-      '</div><span class="badge badge--client">客户端配置 + 用户口径</span></div>' +
+      '</div><span class="badge badge--client">客户端配置 + 寒溟口径</span></div>' +
       '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>卡色</th><th>风格</th><th class="num">触发人数 → 加成</th><th>效果对象</th></tr></thead><tbody>' + colorRows + '</tbody></table></div>' +
       '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">🧩</span><span><strong>可叠加：</strong>' + esc(sd.stacking || '不同类效果可同时触发；同类取最高档。') + '</span></div>' +
       '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' + distChips + '</div>' +
@@ -1228,7 +1228,7 @@
     subtitle:
       '战斗配队框架：PVP 三阵配置（主/副/奇阵）、圣山队伍配置（蓝/紫/绿/红）、杯赛配置（按当届杯赛维护）、协会赛（1.0.23 圣山投射协会赛：5 环节赛制 + 19 关敌人 + 帮助/奖励）、无尽之路（1.0.21 新增 · 解包结果 · 暂未实装）。PVP 选一个锁一个（15 名不同角色）；圣山/杯赛不锁定，可重复使用。赛制规则逐块补充。',
     dataNote:
-      '本页来源：框架页（栏目结构 + 规则占位 + 每阵容 5 位置槽位）+ 协会赛（res21/1.0.23 客户端配置：common_help_rule_conf 规则原文 + guild_war.match/robot_conf 敌人 + 帮助/奖励）+ 无尽之路（res20 解包 S1.cn.endless_road.sw）；赛制规则/限制/克制/出场顺序待用户逐块说明后填充（不虚构规则）。备注自动保存 localStorage（bbt.lineup.v1）。',
+      '本页来源：框架页（栏目结构 + 规则占位 + 每阵容 5 位置槽位）+ 协会赛（res21/1.0.23 客户端配置：common_help_rule_conf 规则原文 + guild_war.match/robot_conf 敌人 + 帮助/奖励）+ 无尽之路（res20 解包 S1.cn.endless_road.sw）；赛制规则/限制/克制/出场顺序待寒溟逐块说明后填充（不虚构规则）。备注自动保存 localStorage（bbt.lineup.v1）。',
     mount: function (el) {
       saintViewKey = null; // 每次进入页面默认看当前圣山
       el.innerHTML =

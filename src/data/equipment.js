@@ -1,7 +1,7 @@
 /*!
  * data/equipment.js —— 自动生成，请勿手改。
  * 生成脚本：tool/scripts/build-equipment.mjs
- * 生成时间：2026-11-12 13:13
+ * 生成时间：2026-11-14 07:53
  * 数据版本：v2026.11.05
  * 口径：名称/属性标签/效果文案=客户端文本确证；数值/专属技能词条归属未解；品质=分组推断；攻略=社区
  */
@@ -9,11 +9,11 @@
   'use strict';
   var data = {
   "schema": 1,
-  "generatedAt": "2026-11-12 13:13",
+  "generatedAt": "2026-11-14 07:53",
   "dataVersion": "v2026.11.05",
   "mode": "structured",
   "meta": {
-    "generatedAt": "2026-11-12 13:13",
+    "generatedAt": "2026-11-14 07:53",
     "dataVersion": "v2026.11.05",
     "source": "data/structured/guides_cleaned/equipment_merged.json",
     "sources": [
@@ -687,7 +687,7 @@
       "qualityGroup": "SSR",
       "qualityConfidence": "group_marker_inferred",
       "descText": "百目鬼剑除了篮球以外最大的爱好就是土木工程，不知道从什么时候开始就喜欢往工地晃悠，有时候放学直接拎个铲子去打灰，被问到就说是“积累实习经验”。别人觉得搬砖又累又枯燥，她倒是干得起劲，一堆材料在自己手里变成实打实的建筑。\n砖是她刚接触建筑时拿的第一样东西，简单、结实，倒是挺像她的风格。",
-      "skillText": "渐入佳境（漂移中投，投射*80%+弹跳*40%）；快速中投（投射*70%+运控*30%）；二阶/红档于 res20 新增，红档 210433 = 投射*90%+弹跳*50%；实际可获上限：红（受限，红档 210433/210438/210439 需一砖入魂满星，用户实机口径 2026-11-12）",
+      "skillText": "渐入佳境（漂移中投，投射*80%+弹跳*40%）；快速中投（投射*70%+运控*30%）；二阶/红档于 res20 新增，红档 210433 = 投射*90%+弹跳*50%；实际可获上限：红（受限，红档 210433/210438/210439 需一砖入魂满星，寒溟实机口径 2026-11-12）",
       "source": "cw_conf.archive strings @23257945",
       "confidence": "name+attr_text_confirmed; skills/typeTxt/story=res20 客户端文本确证; release=config-verified; quality=group_marker_inferred",
       "equipId": 31003,
@@ -702,9 +702,9 @@
       "releaseNote": "res20 ban_ui_show 对照实验：16777216→supactor_awake_bind；玩家可获得性待验证",
       "sourceDetail": "data/structured/_client_res20/equipment_yizhuan_ruhun.json（res20 支援卡/比赛技能/技能效果全字段）",
       "actualMaxQuality": "红（需满星）",
-      "qualityCapNote": "实际可获上限：红（受限）；红档 210433/210438/210439 可获得但需一砖入魂满星（用户实机口径 2026-11-12）",
+      "qualityCapNote": "实际可获上限：红（受限）；红档 210433/210438/210439 可获得但需一砖入魂满星（寒溟实机口径 2026-11-12）",
       "redUnlockNote": "需一砖入魂满星（未满星不可得）",
-      "obtainabilitySource": "用户实机口径（2026-11-12）",
+      "obtainabilitySource": "寒溟实机口径（2026-11-12）",
       "guide": null
     },
     {
@@ -816,7 +816,7 @@
       "qualityGroup": "SSR",
       "qualityConfidence": "group_marker_inferred",
       "descText": "每周二是澪奈的 Hamburger Tuesday，从早到晚全是汉堡。教练怕她毁了体能，给她做过一次测试：普通午餐后跑动数据A级，Hamburger Tuesday 之后直接 S+。\n教练盯着报告看了很久，只说了句\"……行吧\"。\n\n队友说这不科学，她说自己的身体就是汉堡驱动的，不服来跑圈。",
-      "skillText": "气盛如虹（风车扣篮，弹跳*80%+体能*40%）；快速扣篮（弹跳*70%+运控*30%）；二阶/红档于 res20 新增，红档 210432 = 弹跳*90%+体能*50%；实际可获上限：金（红档 210432/210434-210437 配置存在但当前不可得，用户实机口径 2026-11-12）",
+      "skillText": "气盛如虹（风车扣篮，弹跳*80%+体能*40%）；快速扣篮（弹跳*70%+运控*30%）；二阶/红档于 res20 新增，红档 210432 = 弹跳*90%+体能*50%；实际可获上限：金（红档 210432/210434-210437 配置存在但当前不可得，寒溟实机口径 2026-11-12）",
       "source": "cw_conf.archive strings @23258972",
       "confidence": "name+attr_text_confirmed; skills/typeTxt/story=res20 客户端文本确证; release=config-verified; quality=group_marker_inferred",
       "equipId": 34003,
@@ -831,9 +831,9 @@
       "releaseNote": "res20 ban_ui_show 对照实验：16777216→supactor_awake_bind；玩家可获得性待验证",
       "sourceDetail": "data/structured/_client_res20/equipment_chongneng_hanbao.json（res20 支援卡/比赛技能/技能效果全字段）",
       "actualMaxQuality": "金（红档当前不可得）",
-      "qualityCapNote": "实际可获上限：金；红档 210432/210434-210437 配置存在但当前不可获得（用户实机口径 2026-11-12：目前拿不到红品质技能、最多金色）",
+      "qualityCapNote": "实际可获上限：金；红档 210432/210434-210437 配置存在但当前不可获得（寒溟实机口径 2026-11-12：目前拿不到红品质技能、最多金色）",
       "redUnlockNote": "红档不可获得（配置存在）",
-      "obtainabilitySource": "用户实机口径（2026-11-12）",
+      "obtainabilitySource": "寒溟实机口径（2026-11-12）",
       "guide": null
     },
     {

@@ -2,7 +2,7 @@
  * data/notes-harmony.js —— 自动生成，请勿手改。
  * 生成脚本：tool/scripts/build-notes.mjs
  * 数据来源：data/community/notes_harmony/（张君宝 2026.11.02 数据版，截图 OCR/人工转录）
- * 生成时间：2026-11-06 00:27
+ * 生成时间：2026-11-14 07:53
  *
  * file:// 下无法 fetch 本地 JSON，笔记契合数据以全局脚本固化，双击即用。
  */
@@ -10,7 +10,7 @@
   'use strict';
   var data = {
   "schema": 1,
-  "generatedAt": "2026-11-06 00:27",
+  "generatedAt": "2026-11-14 07:53",
   "mode": "ready",
   "source": "data/community/notes_harmony/（matrix_37 / tier_plans_37 / summary_2modes）",
   "meta": {

@@ -2,7 +2,7 @@
 window.BBTPvPData = {
  "schema": "pvp-formations-v1",
  "generatedAt": "2026-11-09",
- "source": "position_fit_v3（V4.3 星级 raw）+ character_types_v3 + team_synergy（体系/增益源/得分手）+ 用户 PVP 口径",
+ "source": "position_fit_v3（V4.3 星级 raw）+ character_types_v3 + team_synergy（体系/增益源/得分手）+ 寒溟 PVP 口径",
  "rules": {
   "teamSize": 5,
   "formations": 3,
@@ -13,7 +13,7 @@ window.BBTPvPData = {
  "mainPlan": {
   "key": "三体系各一队",
   "label": "攻筐队 + 中投队 + 三分队（推荐）",
-  "description": "用户思路：3 阵按攻框/中投/三分各配一队，15 人不重复；无场地加成，只吃体系内角色技能协同。",
+  "description": "寒溟思路：3 阵按攻框/中投/三分各配一队，15 人不重复；无场地加成，只吃体系内角色技能协同。",
   "systems": [
    "paint",
    "mid",
@@ -371,8 +371,8 @@ window.BBTPvPData = {
  },
  "userLineups": {
   "generatedAt": "2026-11-09",
-  "source": "用户实机三阵口述（2026-11-09）",
-  "note": "用户当前 PVP 配置，作为配队基线；每阵 5 人、15 人不重复。",
+  "source": "寒溟实机三阵口述（2026-11-09）",
+  "note": "寒溟当前 PVP 配置，作为配队基线；每阵 5 人、15 人不重复。",
   "teams": [
    {
     "system": "paint",

@@ -427,7 +427,7 @@
           ? '<div class="tiny muted" style="margin-top:8px">已实装特殊器材（行为卡，不进 T 表·不编造排名）：' +
             specialReleased.map(function (x) {
               var capTxt = x.actualMaxQuality
-                ? (' · 实际可获：' + esc(x.actualMaxQuality) + (x.actualMaxQuality === '金' ? '（红档当前不可得·用户实机口径）' : '（红档需满星·用户实机口径）'))
+                ? (' · 实际可获：' + esc(x.actualMaxQuality) + (x.actualMaxQuality === '金' ? '（红档当前不可得·寒溟实机口径）' : '（红档需满星·寒溟实机口径）'))
                 : '';
               return esc(x.name) + (x.skills && x.skills.length ? '（' + esc(x.skills.join('、')) + '）' : '') + capTxt;
             }).join('、') +

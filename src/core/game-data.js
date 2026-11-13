@@ -31,9 +31,9 @@
     { id: 'roster', label: '派生评分/模板/梯队', path: 'data/structured/derived_roster.json', module: 'BBRosterData', confidence: '多源一致 + 推断' },
     { id: 'notes', label: '笔记契合矩阵/冲极路径', path: 'data/community/notes_harmony/', module: 'BBNotesHarmony', confidence: '单源（图片转录，22/22 和校验）' },
     { id: 'model', label: 'T3 数值模型', path: 'knowledge/model.json', module: 'BBTModel', confidence: '混合（客户端确证/社区实测/推断/待验证）' },
-    { id: 'expression', label: '表情一致乘区实测', path: 'knowledge/表情机制_希雅二星虚空人.md + 用户实机', module: 'inline', confidence: '实测（2026-11-05；7/8/9 推算）' },
-    { id: 'pvp', label: 'PvP 判定初版', path: '用户实机 + 社区（初版，待复核）', module: 'inline', confidence: '初版/待复核' },
-    { id: 'scenarios', label: '养成场景/训练方向/圣山', path: 'data/structured/saint_mountains.json + 用户确认', module: 'BBScenarios', confidence: '用户口述（绿/红圣山待补）' },
+    { id: 'expression', label: '表情一致乘区实测', path: 'knowledge/表情机制_希雅二星虚空人.md + 寒溟实机', module: 'inline', confidence: '实测（2026-11-05；7/8/9 推算）' },
+    { id: 'pvp', label: 'PvP 判定初版', path: '寒溟实机 + 社区（初版，待复核）', module: 'inline', confidence: '初版/待复核' },
+    { id: 'scenarios', label: '养成场景/训练方向/圣山', path: 'data/structured/saint_mountains.json + 寒溟确认', module: 'BBScenarios', confidence: '寒溟口述（绿/红圣山待补）' },
     { id: 'equipment', label: '器材名称/属性/效果池/词条/社区攻略', path: 'data/structured/guides_cleaned/equipment_merged.json', module: 'BBEquipmentData', confidence: '文本确证 + 品质推断 + 社区攻略；数值未解' },
     { id: 'noteEntries', label: '笔记词条样本/类型/规则', path: 'data/pc-client/snapshots/.../notes_from_log.json + note_samples.json', module: 'BBNoteEntriesData', confidence: '日志字段=客户端事实；具名词条=截图 OCR；映射/概率待补' }
   ];
@@ -133,7 +133,7 @@
       assistantBonus: { value: 0, unit: '点', confidence: '推断', note: '陪练不提供额外训练加值（待复核）' },
       equipmentBonus: { value: 1, unit: '点', confidence: '实测', note: '对口器材 +1' },
       growthRate: { value: 100, unit: '%', confidence: '推断', note: '成长率按乘算处理（×100% = 不放大，待复核）' },
-      source: '用户实机 + 社区（初版，待复核）',
+      source: '寒溟实机 + 社区（初版，待复核）',
       confidence: '初版/待复核'
     },
     expressionConsistency: {
@@ -141,7 +141,7 @@
       measuredCounts: [2, 3, 4, 5, 6],
       estimatedCounts: [7, 8, 9],
       rule: '2~6 实测；7/8/9 = round1Banker(1+0.25n) 推算',
-      source: '用户实机 2026-11-05（2 哭脸 150%、3 大笑 288%、3 微笑 234%、4 大笑 360%、5 微笑 330%、6 人 803%）',
+      source: '寒溟实机 2026-11-05（2 哭脸 150%、3 大笑 288%、3 微笑 234%、4 大笑 360%、5 微笑 330%、6 人 803%）',
       confidence: '实测（7/8/9 推算·待实测）'
     },
     pvp: {
@@ -152,12 +152,12 @@
       disturb: null,
       confidence: '初版/待复核',
       note: 'PvP 判定初版：命中 = 基础命中 ×（1−干扰）？A/B/干扰系数待更多样本反解，页面仅展示公式结构。',
-      source: '用户实机 + 社区初步结论'
+      source: '寒溟实机 + 社区初步结论'
     },
     expression803: {
       formula: '(1 + 6 × (20% + 8% + 4%)) × (2.5 + 0.25) = 803%',
       confidence: '实测',
-      source: '社区实测 + 用户实机交叉'
+      source: '社区实测 + 寒溟实机交叉'
     }
   };
 

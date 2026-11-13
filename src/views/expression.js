@@ -52,7 +52,7 @@
     title: '表情爆发优化器',
     subtitle: '新默认按「表情构成」算：大笑 20% / 微笑 10% / 哭脸 0%，混合只线性相加；全一致才乘一致乘区（实测表：2人1.5 / 3人1.8 / 4人2.0 / 5人2.2 / 6人2.5，真崎+0.25）。锚点：150% / 234% / 288% / 330% / 360% / 803%。',
     dataNote:
-      '来源：用户实机 2026-11-05（一致乘区表、130%/150%/160%/234%/288%/330%/360%/803%）；7/8/9 为推算·待实测',
+      '来源：寒溟实机 2026-11-05（一致乘区表、130%/150%/160%/234%/288%/330%/360%/803%）；7/8/9 为推算·待实测',
     mount: function (el, ctx) {
       var format = BBT.format;
       var expr = BBT.expression;
@@ -65,10 +65,10 @@
 
       var html = '';
 
-      /* ===== 新默认模型：表情构成计算器（用户实测定稿 2026-11-05） ===== */
+      /* ===== 新默认模型：表情构成计算器（寒溟实测定稿 2026-11-05） ===== */
       html +=
         '<div class="card card--pad card--shadow" id="expr-comp-card" style="margin-bottom:18px">' +
-        '<div class="card-head"><div><div class="card-title"><span class="ico">🧮</span>表情构成计算器（新默认 · 用户实测定稿）</div>' +
+        '<div class="card-head"><div><div class="card-title"><span class="ico">🧮</span>表情构成计算器（新默认 · 寒溟实测定稿）</div>' +
         '<div class="card-sub">爆发倍率 = (1 + Σ每个参与者的(表情基础 + 角色技能加成)) × 一致乘区；大笑 20% / 微笑 10% / 哭脸 0%。</div></div>' +
         dom.confBadge('实测') + '</div>' +
         '<div class="grid grid--3" style="gap:12px">' +
@@ -102,7 +102,7 @@
         '<span class="badge badge--warn">7/8/9 人 = 1+0.25×人数 银行家舍入推算（2.8 / 3.0 / 3.2）·待实测</span>。混合表情只线性相加。' +
         '</span></div>' +
         '<div class="small muted" style="margin-top:8px">角色技能加成沿用下方旧模型区的「上阵角色技能加值」（望月 +8%、龙宫寺 +4% …，每个参与者都吃）；真崎 +0.25 同理。' +
-        '数据来源：用户实机 2026-11-05（150% / 234% / 288% / 330% / 360% / 803% 锚点）。</div>' +
+        '数据来源：寒溟实机 2026-11-05（150% / 234% / 288% / 330% / 360% / 803% 锚点）。</div>' +
         '</div>';
 
       html +=
@@ -304,7 +304,7 @@
           '<div class="small muted" style="margin-bottom:6px">下方实测示例为「不含角色技能加成」的锚点（130%/160%/234%）；上方计算结果已计入当前上阵角色技能 +' +
           format.num(result.skillBonusPct, 1) + '%（可在下方旧模型区调整）。</div>' +
           '<div class="table-wrap"><table class="table"><thead><tr>' +
-          '<th>用户实机示例</th><th class="num">期望</th><th class="num">计算值</th><th>说明</th><th>状态</th>' +
+          '<th>寒溟实机示例</th><th class="num">期望</th><th class="num">计算值</th><th>说明</th><th>状态</th>' +
           '</tr></thead><tbody>' +
           examples.map(function (e) {
             return '<tr><td><strong>' + dom.esc(e.label) + '</strong></td>' +
@@ -427,7 +427,7 @@
           '</div>' +
           '<div class="notice notice--warn" style="margin-top:12px"><span class="notice-ico">⚠️</span><span>' +
           dom.esc(warning) + '</span></div>' +
-          '<div class="small muted" style="margin-top:8px">用户实测（2026-11-05）：训练队基础 6 人 = 经理1 + 陪练4 + 主练1；' +
+          '<div class="small muted" style="margin-top:8px">寒溟实测（2026-11-05）：训练队基础 6 人 = 经理1 + 陪练4 + 主练1；' +
           '希雅二星额外 +1~3 虚空人，虚空人表情必定与某个真人一致。虚空人数量分布/是否独立随机仍待确认。</div>' +
           '</div>';
 

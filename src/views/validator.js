@@ -14,7 +14,7 @@
     title: '验证器',
     subtitle: '这个工具回答：我输入一屏面板/一次训练结果，当前模型预测得准不准？残差说明该补哪条数据？',
     dataNote:
-      '来源：T3 calibration + 用户实机样本；残差与反解结果随样本更新',
+      '来源：T3 calibration + 寒溟实机样本；残差与反解结果随样本更新',
     mount: function (el, ctx) {
       var format = BBT.format;
       var validator = BBT.validator;
