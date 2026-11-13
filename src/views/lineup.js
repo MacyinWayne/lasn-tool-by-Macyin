@@ -56,6 +56,13 @@
       ]
     },
     {
+      id: 'guildwar',
+      name: '协会赛',
+      icon: '🏯',
+      status: '预览 · 解包数据，仅作参考',
+      desc: '⚠️ 预览：本页全部为客户端解包数据（1.0.23 / res21 配置），仅作参考，实机数值以游戏内为准。圣山投射协会赛：5 环节赛制 + 赛程 + 19 关敌人表 + 帮助/奖励 + 决赛场配队建议。规则原文照录（file#poolOffset），敌人为 robot_conf 解包。'
+    },
+    {
       id: 'endless',
       name: '无尽之路',
       icon: '🛤️',
@@ -339,14 +346,41 @@
   }
   function renderSaint(el) { paint(el); }
 
+  function pvpBaseTeamsHtml() {
+    var d = root.BBTPvpBaseTeams;
+    if (!d || !Array.isArray(d.teams) || !d.teams.length) return '';
+    var meta = d.meta || {};
+    var blocks = d.teams.map(function (t) {
+      var rows = (t.slots || []).map(function (s) {
+        return '<tr><td>' + esc(s.pos) + '</td><td><strong>' + esc(s.name) + '</strong></td><td>' + esc(s.style) + '</td><td class="small">' + esc(s.role) + '</td></tr>';
+      }).join('');
+      var tag = t.name.indexOf('一阵') >= 0 ? '主阵' : (t.name.indexOf('二阵') >= 0 ? '副阵' : '奇阵');
+      return '<div class="card card--pad" data-pvp-base="' + esc(t.id) + '" style="margin-top:10px">' +
+        '<div class="card-head"><div><div class="card-title">' + esc(t.name) + '</div>' +
+        '<div class="card-sub">' + esc(t.styleComboText || '') + '</div></div>' +
+        '<span class="badge badge--ok">' + esc(tag) + '</span></div>' +
+        '<div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:520px"><thead><tr><th>位置</th><th>角色</th><th>风格</th><th>定位 / 技能</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        (t.strength ? '<div class="small" style="margin-top:6px"><strong>强项：</strong>' + esc(t.strength) + '</div>' : '') +
+        (t.weakness ? '<div class="small muted" style="margin-top:2px"><strong>弱点：</strong>' + esc(t.weakness) + '</div>' : '') +
+        (t.notes ? '<div class="tiny muted" style="margin-top:2px">备注：' + esc(t.notes) + '</div>' : '') +
+        '</div>';
+    }).join('');
+    return '<div class="card card--pad" id="pvp-base-teams" style="margin-bottom:12px">' +
+      '<div class="card-head"><div><div class="card-title"><span class="ico">🗂️</span>我的 PVP 三基阵（2026-11-13 重构）</div>' +
+      '<div class="card-sub">' + esc(meta.note || '') + '</div></div>' +
+      '<span class="badge badge--ok">用户口径</span></div>' +
+      '<div class="small muted" style="margin-top:4px">风格规则：' + esc(meta.styleRule || '') + '</div>' +
+      blocks + '</div>';
+  }
+
   function renderPvp(el) {
     var host = el.querySelector('#pvp-body');
     if (!host) return;
     var P = pvpData();
-    host.innerHTML = pvpBaselineHtml(P) + pvpBuilderHtml(P) + pvpAutoHtml(P);
+    host.innerHTML = pvpBaseTeamsHtml() + pvpBaselineHtml(P) + pvpBuilderHtml(P) + pvpAutoHtml(P);
   }
   function pvpHtml() {
-    return '<div id="pvp-body">' + pvpBaselineHtml(pvpData()) + pvpBuilderHtml(pvpData()) + pvpAutoHtml(pvpData()) + '</div>';
+    return '<div id="pvp-body">' + pvpBaseTeamsHtml() + pvpBaselineHtml(pvpData()) + pvpBuilderHtml(pvpData()) + pvpAutoHtml(pvpData()) + '</div>';
   }
 
   var SAINT_ORDER = ['blue', 'red', 'green', 'purple'];
@@ -662,6 +696,339 @@
       '<textarea class="input" id="lineup-note-cup" data-lineup-note="cup" rows="4" maxlength="4000" placeholder="补充杯赛规则/限制/配队思路（自动保存到本地）…">' + esc(notes['cup'] || '') + '</textarea>';
   }
 
+  /* ================= 协会赛（圣山投射协会赛）数据渲染 =================
+   * 数据：tool/src/data/guild-war.js（window.BBTGuildWarData）
+   * 口径：规则原文照录（file#poolOffset）；敌人=robot_conf 解包（AI 实际以游戏内为准）；
+   *       环节归属=推断；敌人 104-106 为游戏内运行时生成（决赛场/终局已按用户实机规则补全六维）；
+   *       guild_war.schedule 表为 2027 占位不采用。
+   */
+  function guildWarData() {
+    return (typeof window !== 'undefined' && window.BBTGuildWarData) || null;
+  }
+  var GW_ATTR_NAMES = ['投射', '弹跳', '防守', '体能', '运控', '意识'];
+  var GW_ATTR_IDS = ['101', '102', '103', '104', '105', '106'];
+  function gwAttrBadge(mm) {
+    var key = mm.attrSource || 'runtime';
+    var cls = (key === 'screenshot' || key === 'verified') ? 'badge--ok' : key === 'pending' ? 'badge--warn' : key === 'runtime' ? 'badge--neutral' : 'badge--info';
+    return '<span class="badge ' + cls + '">' + esc(mm.attrSourceLabel || '推断') + '</span>';
+  }
+  function gwEnemyRowHtml(mm) {
+    var name = esc(mm.characterName || '') + (mm.aiName ? '（' + esc(mm.aiName) + '）' : '');
+    var cells;
+    if (mm.fullAttrs) {
+      cells = GW_ATTR_NAMES.map(function (n) {
+        var v = mm.fullAttrs[n];
+        return '<td class="num">' + (v == null ? '—' : esc(v)) + '</td>';
+      }).join('');
+    } else {
+      cells = GW_ATTR_IDS.slice(0, 3).map(function (id) {
+        var v = mm.property && mm.property[id] != null ? mm.property[id] : null;
+        return '<td class="num">' + (v == null ? '—' : esc(v)) + '</td>';
+      }).join('') + '<td class="num muted" colspan="3">运行时生成（未解出）</td>';
+    }
+    var sumTxt = mm.attrSum != null
+      ? '<div class="tiny muted">Σ=' + esc(mm.attrSum) + (mm.sumMatchesPropRank ? ' = propRank ✓' : '') + '</div>'
+      : '';
+    return '<tr data-gw-enemy="' + esc(mm.positionRaw) + '" data-gw-actor="' + esc(mm.actorId) + '" data-gw-attr-source="' + esc(mm.attrSource || 'runtime') + '">' +
+      '<td><strong>' + esc(mm.position) + '</strong></td>' +
+      '<td>' + name + '</td>' +
+      '<td class="num">' + esc(mm.level) + '</td>' +
+      '<td class="num">' + esc(mm.rank) + ' / ' + esc(mm.propRank) + '</td>' +
+      cells +
+      '<td class="small">' + gwAttrBadge(mm) + sumTxt + '</td></tr>';
+  }
+  function gwMatchHtml(match) {
+    var mainHp = match.mainStage && match.mainStage.matchHealth != null ? match.mainStage.matchHealth : '—';
+    var trialHp = match.trialStage && match.trialStage.matchHealth != null ? match.trialStage.matchHealth : '—';
+    var teams = (match.enemyTeams || []).map(function (t) {
+      return '<div class="small" style="margin-top:2px">敌方队伍：<strong>' + esc(t.showName || t.teamName) + '</strong>' +
+        '（体系名 ' + esc(t.teamName) + ' · teamRank ' + esc(t.teamRank) + ' · rankLv ' + esc(t.rankLv) + '）</div>';
+    }).join('');
+    var rows = (match.enemyTeams || []).reduce(function (acc, t) { return acc.concat(t.members || []); }, []).map(gwEnemyRowHtml).join('');
+    var anyFull = (match.enemyTeams || []).some(function (t) {
+      return (t.members || []).some(function (x) { return !!x.fullAttrs; });
+    });
+    var pre = '';
+    if (match.preMatch && match.preMatch.length) pre += '<div class="tiny muted">前置关卡：' + esc(match.preMatch.join('、')) + '</div>';
+    if (match.preMatch1 && match.preMatch1.length) pre += '<div class="tiny muted">前置(分站)：' + esc(match.preMatch1.join('、')) + '</div>';
+    if (match.preMatch2 && match.preMatch2.length) pre += '<div class="tiny muted">前置(分站)：' + esc(match.preMatch2.join('、')) + '</div>';
+    return '<details class="fold" data-gw-match="' + esc(match.matchId) + '" style="margin:4px 0;border:1px solid var(--line);border-radius:8px;padding:6px 10px">' +
+      '<summary class="small strong" style="cursor:pointer">关卡 #' + esc(match.matchId) + ' ' + esc(match.showName) +
+      '（' + esc(match.name) + '）· 主赛血量 ' + esc(mainHp) + ' / 试训版 ' + esc(trialHp) + '</summary>' +
+      '<div class="tiny muted" style="margin-top:4px">我方 base/lose score：' + esc(match.baseScore) + ' / ' + esc(match.loseScore) + pre + '</div>' +
+      teams +
+      (match.phase ? '<div class="tiny muted">环节（推断）：' + esc(match.phase.phase) + ' · ' + esc(match.phase.detail || '') + '</div>' : '') +
+      '<div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:860px"><thead><tr>' +
+      '<th>位置</th><th>角色（AI 名）</th><th class="num">等级</th><th class="num">rank / propRank</th>' +
+      '<th class="num">投射</th><th class="num">弹跳</th><th class="num">防守</th>' +
+      '<th class="num">体能</th><th class="num">运控</th><th class="num">意识</th><th>属性来源</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      '<div class="tiny muted" style="margin-top:4px">' +
+      (anyFull
+        ? '本关六维已补全（实机截图/推断见行内标签；104-106 生成规则见下方「敌人属性生成规则」卡）。'
+        : '本关客户端静态表只有 101/102/103 三项；104-106 为游戏内运行时生成（规则未解出），不编造。') +
+      '</div>' +
+      '</details>';
+  }
+  function gwLineupsHtml() {
+    var L = (typeof window !== 'undefined' && window.BBTGuildWarLineups) || null;
+    if (!L || !L.teams || !L.teams.length) return '';
+    var B = L.boss || {};
+    var statRows = (B.stats ? Object.keys(B.stats) : []).map(function (k) {
+      return '<tr><td><strong>' + esc(k) + '</strong></td><td class="num">' + esc(B.stats[k]) + '</td></tr>';
+    }).join('');
+    var moveRows = (B.moves || []).map(function (m) {
+      return '<tr><td class="small"><strong>' + esc(m.name) + '</strong><div class="tiny muted">' + esc(m.card) + '</div></td>' +
+        '<td class="small">' + esc(m.power) + '</td><td class="small muted">' + esc(m.note) + '</td></tr>';
+    }).join('');
+    var bossCard = '<div class="card card--pad" id="gw-lineup-boss" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">👹 决赛场 BOSS · ' + esc(B.name) + '</div>' +
+      '<div class="card-sub">' + esc(B.pos) + ' · ' + esc(B.body) + ' · 困难档六维</div></div>' +
+      '<span class="badge badge--warn">BOSS 数据</span></div>' +
+      '<div class="grid grid--2" style="gap:10px;margin-top:8px">' +
+      '<div class="table-wrap"><table class="table"><thead><tr><th>六维（困难档）</th><th class="num">数值</th></tr></thead><tbody>' + statRows + '</tbody></table></div>' +
+      '<div class="table-wrap"><table class="table"><thead><tr><th>动作</th><th>威力</th><th>说明</th></tr></thead><tbody>' + moveRows + '</tbody></table></div>' +
+      '</div>' +
+      '<ul class="small" style="margin:8px 0 0 18px">' + (B.tips || []).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
+    var TB = L.terrainBuff;
+    var terrainCard = TB ? '<div class="card card--pad" id="gw-terrain-buff" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🌐 ' + esc(TB.name) + '</div>' +
+      '<div class="card-sub">表演赛期间全程生效 · 配置解包</div></div>' +
+      '<span class="badge badge--client">场地 buff</span></div>' +
+      '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">⚡</span><span class="small"><strong>' + esc(TB.desc) + '</strong></span></div>' +
+      '<div class="small" style="margin-top:6px"><strong>覆盖范围：</strong>' + esc(TB.scope) + '</div>' +
+      '<div class="small" style="margin-top:2px"><strong>配置链：</strong>' + esc(TB.config) + '</div>' +
+      '<div class="small" style="margin-top:2px"><strong>上限：</strong>' + esc(TB.maxTier) + '</div>' +
+      '<div class="small muted" style="margin-top:2px"><strong>推算：</strong>' + esc(TB.calc) + '</div>' +
+      '<div class="tiny muted" style="margin-top:2px">' + esc(TB.verify) + '</div></div>' : '';
+    var teamCards = (L.teams || []).map(function (t) {
+      var slotRows = (t.slots || []).map(function (s) {
+        return '<tr><td><strong>' + esc(s.pos) + '</strong></td><td><strong>' + esc(s.name) + '</strong></td><td class="small">' + esc(s.style) + '</td><td class="small muted">' + esc(s.role) + '</td></tr>';
+      }).join('');
+      return '<div class="card card--pad" data-gw-lineup="' + esc(t.id) + '" style="margin-bottom:10px">' +
+        '<div class="card-head"><div><div class="card-title">' + esc(t.name) + '</div>' +
+        '<div class="card-sub">' + esc(t.summary) + '</div></div>' +
+        '<span class="badge ' + esc(t.badge || 'badge--info') + '">' + esc(t.tier) + '</span></div>' +
+        '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>位置</th><th>角色</th><th>风格</th><th>作用</th></tr></thead><tbody>' + slotRows + '</tbody></table></div>' +
+        '<div class="small" style="margin-top:6px"><strong>风格加成：</strong>' + esc(t.bonus) + '</div>' +
+        (t.chain ? '<div class="small" style="margin-top:2px"><strong>联动：</strong>' + esc(t.chain) + '</div>' : '') +
+        (t.threshold ? '<div class="small" style="margin-top:2px"><strong>硬撼门槛：</strong>' + esc(t.threshold) + '</div>' : '') +
+        (t.math ? '<div class="small" style="margin-top:2px"><strong>克制计算：</strong>' + esc(t.math) + '</div>' : '') +
+        (t.risk ? '<div class="tiny muted" style="margin-top:2px">⚠️ ' + esc(t.risk) + '</div>' : '') +
+        '</div>';
+    }).join('');
+    return bossCard + terrainCard + '<div class="card card--pad" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🎯 决赛场三套推荐配队</div>' +
+      '<div class="card-sub">' + esc(L.note) + '</div></div>' +
+      '<span class="badge badge--ok">玩家讨论版 · 非官方</span></div>' +
+      (L.teamPlans ? '<ul class="small" style="margin:8px 0 0 18px">' + L.teamPlans.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
+      teamCards +
+      '<ul class="small" style="margin:8px 0 0 18px">' + (L.commonTips || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
+      '<div class="tiny muted" style="margin-top:6px">来源：' + esc(L.source) + '（生成 ' + esc(L.generatedAt) + '）</div></div>';
+  }
+
+  /* 敌人属性生成规则卡（2026-11-13 用户实机口径） */
+  function gwAttrRuleCardHtml(G) {
+    var F = G.enemyFullAttrs || {};
+    var rule = F.rule || {};
+    var tiers = rule.tiers || {};
+    var tierOrder = rule.tierOrder || ['普通', '中等', '困难'];
+    var tierRows = tierOrder.map(function (t) {
+      var r = tiers[t] || {};
+      return '<tr data-gw-attr-tier="' + esc(t) + '"><td><strong>' + esc(t) + '</strong></td>' +
+        '<td class="num">' + esc(r.main) + '</td><td class="num">' + esc(r.sec) + '</td><td class="num">' + esc(r.rest) + '</td></tr>';
+    }).join('');
+    var profiles = rule.profiles || {};
+    var profileChips = Object.keys(profiles).map(function (actorId) {
+      var p = profiles[actorId] || {};
+      return '<span class="tag">' + esc(actorId) + '：主' + esc(p.mainName || '') + ' / 副' + esc(p.secName || '') + '</span>';
+    }).join(' ');
+    var boss = rule.boss || {};
+    var bossCells = GW_ATTR_NAMES.map(function (n) {
+      var id = GW_ATTR_IDS[GW_ATTR_NAMES.indexOf(n)];
+      var v = boss.attrs ? boss.attrs[id] : null;
+      return '<td class="num">' + (v == null ? '—' : esc(v)) + '</td>';
+    }).join('');
+    var cov = F.coverage || {};
+    var src = F.source || {};
+    var verify = rule.verification || {};
+    var verifyHtml = verify.finalRuleVerified
+      ? '<div class="notice notice--ok" style="margin-top:8px"><span class="notice-ico">✅</span><span class="small">' +
+        '<strong>终局规则验证（用户实机截图 2026-11-13）：</strong>' + esc(verify.detail || '') + '<br>' +
+        esc(verify.sumNote || '') + (verify.legendaryNote ? '<br>' + esc(verify.legendaryNote) : '') +
+        (verify.bossNote ? '<br>' + esc(verify.bossNote) : '') + '</span></div>'
+      : '';
+    return '<div class="card card--pad" id="gw-attr-rule" data-gw-attr-rule="1" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">⚙️ 敌人属性生成规则（六维补全）</div>' +
+      '<div class="card-sub">客户端静态表只存 3 项（投射/弹跳/防守），体能/运控/意识由游戏内按「主/副/其余」规则生成；玩家实机截图已证实。</div></div>' +
+      '<span class="badge badge--ok">用户实机口径 2026-11-13</span></div>' +
+      (G.meta.enemyFullAttrsNote ? '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">📐</span><span class="small">' + esc(G.meta.enemyFullAttrsNote) + '</span></div>' : '') +
+      '<div class="team-sub-label" style="margin-top:10px">决赛场三档数值（主属性 / 副属性 / 其余）</div>' +
+      '<div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:520px"><thead><tr>' +
+      '<th>难度档</th><th class="num">主属性</th><th class="num">副属性</th><th class="num">其余</th></tr></thead><tbody>' + tierRows + '</tbody></table></div>' +
+      '<div class="small" style="margin-top:6px"><strong>主/副属性由角色位置（profile）决定：</strong>' + (profileChips || '—') + '</div>' +
+      '<div class="small" style="margin-top:4px"><strong>终局挑战换算：</strong>' + esc(rule.ultimateFormula || '') + '</div>' +
+      verifyHtml +
+      '<div style="margin-top:10px"><strong class="small">👹 BOSS ' + esc(boss.name || '米歇尔·杰奎琳') + '（actor ' + esc(boss.actorId || 1999) + '）· 困难档实机截图六维：</strong></div>' +
+      '<div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:560px"><thead><tr><th>投射</th><th>弹跳</th><th>防守</th><th>体能</th><th>运控</th><th>意识</th><th class="num">总和</th></tr></thead>' +
+      '<tbody><tr>' + bossCells + '<td class="num"><strong>' + esc(boss.sum) + '</strong>（=总评）</td></tr></tbody></table></div>' +
+      '<div class="tiny muted" style="margin-top:4px">' + esc(boss.note || '') + '</div>' +
+      '<div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap">' +
+      '<span class="badge badge--ok">' + esc(cov.fullSix) + ' 人六维完整（决赛场 15 + 终局 ' + esc((cov.finalTeamFull ? 5 : 3)) + '）</span>' +
+      '<span class="badge badge--warn">' + esc(cov.pendingSix) + ' 人待实机</span>' +
+      '<span class="badge badge--neutral">' + esc(cov.runtimeGenerated) + ' 人 104-106 运行时生成（分站赛 75 人）</span>' +
+      '<span class="badge badge--info">共 ' + esc(cov.totalEnemies) + ' 名敌人</span></div>' +
+      '<div class="tiny muted" style="margin-top:6px">来源：' + esc(src.screenshot || '用户实机截图 2026-11-13') +
+      (src.screenshotFinal ? '；' + esc(src.screenshotFinal) : '') + '；' + esc(src.client || '客户端静态 3 项') +
+      '。推断值已标「推断」，未解出的不编造。</div></div>';
+  }
+
+  function guildwarSectionHtml(sec) {
+    var G = guildWarData();
+    if (!G) {
+      return '<div class="card card--pad" id="lineup-section-guildwar"><div class="player-missing">协会赛数据未加载：请先生成 tool/src/data/guild-war.js（node tool/scripts/build-guild-war.mjs）。</div></div>';
+    }
+    var notes = loadNotes();
+    var ruleSource = G.meta.ruleSource || '';
+    var head = '<div class="card card--pad" id="gw-head" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🏯 ' + esc(G.meta.title || '协会赛') + '</div>' +
+      '<div class="card-sub">' + esc(G.meta.versionNote || '') + ' · 5 个阶段 · 19 关敌人 · 帮助三选一 · 奖励</div></div>' +
+      '<span class="badge badge--client">客户端配置解包</span></div>' +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>项</th><th>内容</th></tr></thead><tbody>' +
+      '<tr><td><strong>活动名</strong></td><td>' + esc(G.activity.name) + '（活动页 meta id=' + esc(G.activity.collectionId) + '，open/close_time 与规则原文一致）</td></tr>' +
+      '<tr><td><strong>开放时间</strong></td><td><strong>' + esc(G.activity.openTimeLocal) + '</strong> ~ <strong>' + esc(G.activity.closeTimeLocal) + '</strong>（来源=配置说明原文；<strong>以服务端为准</strong>）</td></tr>' +
+      '<tr><td><strong>解锁条件</strong></td><td>' + esc(G.activity.unlockName) + '系统：' + esc(G.activity.unlockDesc || '') + '</td></tr>' +
+      '<tr><td><strong>报名方式</strong></td><td>' + (G.activity.signupRules || []).map(function (r) { return esc(r.rule); }).join('；') + '</td></tr>' +
+      '</tbody></table></div>' +
+      '<div class="notice notice--warn" style="margin-top:8px"><span class="notice-ico">⚠️</span><span class="small">' +
+      esc(G.meta.scheduleNote || '') + '<br>开通时间说明：<strong>2026-11-13 05:00 ~ 2026-12-03 04:59</strong>；客户端 guild_war.schedule 表内时间戳为 2027 年占位，本页不采用该表时间。</span></div></div>';
+
+    var sectionMap = {};
+    (G.ruleSections || []).forEach(function (s) { sectionMap[s.title] = s; });
+    var phaseCards = (G.phases || []).map(function (p) {
+      var sec2 = sectionMap[p.name] || { items: [] };
+      var items = sec2.items || [];
+      return '<div class="card card--pad" data-gw-phase="' + esc(p.key) + '" style="padding:10px">' +
+        '<div class="card-head"><div><div class="card-title">' + esc(p.name) + '</div>' +
+        '<div class="card-sub">' + esc(p.start) + ' ~ ' + esc(p.end) + '</div></div>' +
+        '<span class="badge badge--info">配置原文</span></div>' +
+        '<ul class="small" style="margin:8px 0 0 18px">' + items.map(function (it) { return '<li>' + esc(it) + '</li>'; }).join('') + '</ul>' +
+        '<div class="tiny muted" style="margin-top:6px">出处：' + esc(ruleSource) + '</div></div>';
+    }).join('');
+    var phasesCard = '<div class="card card--pad" id="gw-phases" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">📜 5 环节赛制（原文照录 + 要点）</div>' +
+      '<div class="card-sub">预热期 / 报名期 / 分站表演赛 / 终局挑战赛 / 结算期；原文来自 ' + esc(ruleSource) + '（' + esc(G.meta.ruleLength) + ' 字）</div></div>' +
+      '<span class="badge badge--warn">原文引用</span></div>' +
+      '<div class="grid grid--2" style="gap:10px;margin-top:10px">' + phaseCards + '</div>' +
+      '<details class="fold" style="margin-top:10px"><summary class="small strong" style="cursor:pointer">规则原文全文（' + esc(G.meta.ruleLength) + ' 字，点击展开）</summary>' +
+      '<pre class="small" style="white-space:pre-wrap;margin:8px 0 0;font-family:inherit">' + esc(G.mainRule.plain) + '</pre></details>' +
+      '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' + (G.quotes || []).map(function (q) {
+        return '<span class="tag" title="' + esc(q.file + ' @' + q.poolOffset) + '">' + esc(q.plain) + '</span>';
+      }).join('') + '</div></div>';
+
+    var scheduleRows = (G.phases || []).map(function (p) {
+      return '<tr data-gw-schedule="' + esc(p.key) + '"><td><strong>' + esc(p.name) + '</strong></td><td>' + esc(p.start) + '</td><td>' + esc(p.end) + '</td></tr>';
+    }).join('');
+    var scheduleCard = '<div class="card card--pad" id="gw-schedule" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🗓️ 赛程表（2026 档期 · 配置原文）</div>' +
+      '<div class="card-sub">原文：预热 11.13 05:00–11.20 04:59 / 报名 11.20 05:00–11.22 04:59 / 分站 11.22 05:00–11.29 04:59 / 终局 11.29 10:00–12.1 04:59 / 结算 12.1 05:00–12.3 04:59</div></div>' +
+      '<span class="badge badge--ok">2026 原文</span></div>' +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:520px"><thead><tr><th>阶段</th><th>开始</th><th>结束</th></tr></thead><tbody>' + scheduleRows + '</tbody></table></div>' +
+      '<div class="tiny muted" style="margin-top:4px">客户端 schedule 表（2027 占位）仅作对照：' + (G.schedulePlaceholder || []).map(function (s) { return esc(s.startLocal) + '→' + esc(s.endLocal); }).join('；') + '（不采用）</div></div>';
+    var attrRuleCard = gwAttrRuleCardHtml(G);
+
+    var matchMap = {};
+    (G.matches || []).forEach(function (m) { matchMap[m.matchId] = m; });
+    var enemyGroups = (G.matchGroups || []).map(function (g) {
+      var fold = (g.matchIds || []).map(function (id) {
+        var m = matchMap[id];
+        return m ? gwMatchHtml(m) : '';
+      }).join('');
+      return '<div data-gw-group="' + esc(g.key) + '" style="margin-top:10px">' +
+        '<div class="team-sub-label">' + esc(g.label) + '<span class="badge badge--warn" style="margin-left:8px">环节归属：推断</span></div>' +
+        '<div class="tiny muted" style="margin-bottom:4px">' + esc(g.note || '') + '</div>' + fold + '</div>';
+    }).join('');
+    var enemyCard = '<div class="card card--pad" id="gw-enemies" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">⚔️ 19 关敌人表（按环节分组 · 每关 5 人）</div>' +
+      '<div class="card-sub">阵容来自客户端 robot_conf 解包（guild_war.match → 队伍表 → 机器人表）；<strong>AI 实际数值以游戏内为准</strong>。共 ' + esc(G.matchCount) + ' 关 / ' + esc(G.enemyCount) + ' 名敌人。</div></div>' +
+      '<span class="badge badge--client">客户端解包</span></div>' +
+      '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">📌</span><span class="small">' +
+      esc(G.meta.aiNameNote || '') + '<br>' + esc(G.meta.enemyAttrNote || '') + '<br>' + esc(G.meta.stageMatchNote || '') +
+      '</span></div>' + enemyGroups + '</div>';
+
+    var attrHelp = (G.help.attributeHelp || []).map(function (h) {
+      return '<div class="card card--pad" data-gw-help="' + esc(h.id) + '" style="padding:8px"><strong>' + esc(h.title) + '</strong>' +
+        '<div class="small" style="margin-top:4px">' + esc(h.desc) + '</div></div>';
+    }).join('');
+    var skillHelp = (G.help.skillHelp || []).map(function (h) {
+      return '<div class="card card--pad" data-gw-help-skill="' + esc(h.id) + '" style="padding:8px"><strong>' + esc(h.title) + '</strong>' +
+        '<div class="small" style="margin-top:4px">' + esc(h.desc) + '</div></div>';
+    }).join('');
+    var helpCard = '<div class="card card--pad" id="gw-help" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🤝 帮助三选一 + 支援效果</div>' +
+      '<div class="card-sub">挑战决赛场/终局时自选：属性达标加成（boss_select_ex_point）+ 技能支援（critical_select_effect），各三选一。</div></div>' +
+      '<span class="badge badge--client">客户端配置</span></div>' +
+      '<div class="team-sub-label" style="margin-top:10px">属性帮助（三选一）</div>' +
+      '<div class="grid grid--3" style="gap:8px;margin-top:6px">' + attrHelp + '</div>' +
+      '<div class="team-sub-label" style="margin-top:10px">技能支援（三选一）</div>' +
+      '<div class="grid grid--3" style="gap:8px;margin-top:6px">' + skillHelp + '</div>' +
+      '<div class="notice notice--info" style="margin-top:8px"><span class="notice-ico">🔁</span><span class="small">' +
+      '支援效果规则：<strong>' + esc(G.help.supportRuleQuote) + '</strong>；' + esc(G.help.note || '') + '</span></div></div>';
+
+    var rewardGroups = (G.rewards.groups || []).map(function (g) {
+      var rows = (g.rows || []).map(function (r) {
+        return '<tr><td class="small">' + esc(r.text) + '<div class="tiny muted">' + esc(r.showName) + '</div></td>' +
+          '<td class="small">' + (r.items.length ? r.items.map(function (it) { return esc(it.name) + '×' + esc(it.num); }).join('、') : '—') + '</td></tr>';
+      }).join('');
+      return '<details class="fold" data-gw-reward-group="' + esc(g.group) + '" style="margin:4px 0"><summary class="small strong" style="cursor:pointer">' +
+        esc(g.label) + '（' + (g.rows || []).length + ' 条）</summary>' +
+        '<div class="table-wrap" style="margin-top:6px"><table class="table" style="min-width:520px"><thead><tr><th>条件</th><th>奖励</th></tr></thead><tbody>' + rows + '</tbody></table></div></details>';
+    }).join('');
+    var tasksHtml = (G.tasks || []).map(function (t) { return '<span class="tag">' + esc(t.title) + '</span>'; }).join(' ');
+    var mailsHtml = (G.mails || []).map(function (m) {
+      return '<div class="small" style="margin-top:3px"><strong>' + esc(m.title) + '</strong>：' + esc(m.content) + '</div>';
+    }).join('');
+    var rewardsCard = '<div class="card card--pad" id="gw-rewards" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">🎁 奖励 / 任务 / 邮件 / 红点</div>' +
+      '<div class="card-sub">配置 reward 行 ' + esc(G.rewards.total) + ' 条 + 首通/进度/排名；奖励物品名来自 item_drop_conf。</div></div>' +
+      '<span class="badge badge--client">客户端配置</span></div>' +
+      '<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">' + (G.honors || []).map(function (h) { return '<span class="badge badge--warn">' + esc(h) + '</span>'; }).join('') + '</div>' +
+      rewardGroups +
+      '<div class="team-sub-label" style="margin-top:10px">任务（' + (G.tasks || []).length + ' 条）</div><div class="row" style="gap:6px;margin-top:4px;flex-wrap:wrap">' + (tasksHtml || '—') + '</div>' +
+      '<details class="fold" style="margin-top:8px"><summary class="small strong" style="cursor:pointer">奖励补发 / 发放邮件（' + (G.mails || []).length + ' 条）</summary>' + mailsHtml + '</details>' +
+      '<div class="team-sub-label" style="margin-top:10px">红点（' + (G.reddots || []).length + ' 个）</div>' +
+      '<div class="row" style="gap:6px;margin-top:4px;flex-wrap:wrap">' + (G.reddots || []).map(function (r) { return '<span class="tag">' + esc(r.name) + '</span>'; }).join('') + '</div></div>';
+
+    var metaRows = [
+      ['赛制原文出处', G.meta.ruleSource + '（' + G.meta.ruleLength + ' 字全文；另 @5376 分站表演赛章节）'],
+      ['赛程时间', '采用配置说明原文 2026 档期；guild_war.schedule 表为 2027 占位，不采用，实际以服务端为准'],
+      ['敌人数据', G.meta.enemySource],
+      ['敌人属性', G.meta.enemyAttrNote],
+      ['六维补全规则', G.meta.enemyFullAttrsNote || '（见「敌人属性生成规则」卡）'],
+      ['AI 名称', G.meta.aiNameNote],
+      ['环节归属', G.meta.phaseConfidence],
+      ['stage.match', G.meta.stageMatchNote],
+      ['未解', G.meta.constNote + '；' + G.meta.aiNote]
+    ];
+    var metaCard = '<div class="card card--pad" id="gw-meta" style="margin-bottom:10px">' +
+      '<div class="card-head"><div><div class="card-title">📌 口径与待验证</div>' +
+      '<div class="card-sub">原文照录 / 客户端解包 / 推断 三层分开；不虚构规则与数值。</div></div>' +
+      '<span class="badge badge--warn">待验证</span></div>' +
+      '<div class="table-wrap" style="margin-top:8px"><table class="table" style="min-width:560px"><thead><tr><th>项</th><th>口径</th></tr></thead><tbody>' +
+      metaRows.map(function (r) { return '<tr><td><strong>' + esc(r[0]) + '</strong></td><td class="small">' + esc(r[1]) + '</td></tr>'; }).join('') +
+      '</tbody></table></div>' +
+      '<div class="tiny muted" style="margin-top:6px">来源：' + esc((G.source.files || []).join('、')) + '；报告：' + esc(G.source.report) + '</div></div>';
+
+    return '<div id="lineup-section-guildwar">' +
+      '<div class="card card--pad" style="margin-bottom:12px">' +
+      '<div class="card-head"><div><div class="card-title">' + esc(sec.icon) + ' ' + esc(sec.name) + '</div>' +
+      '<div class="card-sub">' + esc(sec.desc) + '</div></div><span class="badge badge--client">' + esc(sec.status) + '</span></div></div>' +
+      head + gwLineupsHtml() + phasesCard + scheduleCard + attrRuleCard + enemyCard + helpCard + rewardsCard + metaCard +
+      '<div class="team-sub-label" style="margin-top:12px">实机见闻 / 补充（可写）</div>' +
+      '<textarea class="input" id="lineup-note-guildwar" data-lineup-note="guildwar" rows="4" maxlength="4000" placeholder="补充协会赛实机见闻：难度、敌人强度、帮助/支援选择、奖励到账（自动保存到本地）…">' + esc(notes['guildwar'] || '') + '</textarea>' +
+      '</div>';
+  }
+
   function endlessSectionHtml(sec) {
     var notes = loadNotes();
     var warn = '<div class="card card--pad" id="lineup-section-endless">' +
@@ -730,6 +1097,7 @@
 
   function sectionHtml(sec) {
     var notes = loadNotes();
+    if (sec.id === 'guildwar') return guildwarSectionHtml(sec);
     if (sec.id === 'endless') return endlessSectionHtml(sec);
     if (sec.id === 'cup') return cupSectionHtml(sec);
     if (sec.id === 'pvp') {
@@ -845,9 +1213,9 @@
     icon: '⚔️',
     title: '实战配队',
     subtitle:
-      '战斗配队框架：PVP 三阵配置（主/副/奇阵）、圣山队伍配置（蓝/紫/绿/红）、杯赛配置（按当届杯赛维护）、无尽之路（1.0.21 新增 · 解包结果 · 暂未实装）。PVP 选一个锁一个（15 名不同角色）；圣山/杯赛不锁定，可重复使用。赛制规则逐块补充。',
+      '战斗配队框架：PVP 三阵配置（主/副/奇阵）、圣山队伍配置（蓝/紫/绿/红）、杯赛配置（按当届杯赛维护）、协会赛（1.0.23 圣山投射协会赛：5 环节赛制 + 19 关敌人 + 帮助/奖励）、无尽之路（1.0.21 新增 · 解包结果 · 暂未实装）。PVP 选一个锁一个（15 名不同角色）；圣山/杯赛不锁定，可重复使用。赛制规则逐块补充。',
     dataNote:
-      '本页来源：框架页（栏目结构 + 规则占位 + 每阵容 5 位置槽位）+ 无尽之路（res20 解包 S1.cn.endless_road.sw）；赛制规则/限制/克制/出场顺序待用户逐块说明后填充（不虚构规则）。备注自动保存 localStorage（bbt.lineup.v1）。',
+      '本页来源：框架页（栏目结构 + 规则占位 + 每阵容 5 位置槽位）+ 协会赛（res21/1.0.23 客户端配置：common_help_rule_conf 规则原文 + guild_war.match/robot_conf 敌人 + 帮助/奖励）+ 无尽之路（res20 解包 S1.cn.endless_road.sw）；赛制规则/限制/克制/出场顺序待用户逐块说明后填充（不虚构规则）。备注自动保存 localStorage（bbt.lineup.v1）。',
     mount: function (el) {
       saintViewKey = null; // 每次进入页面默认看当前圣山
       el.innerHTML =
